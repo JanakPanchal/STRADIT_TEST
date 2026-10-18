@@ -54,9 +54,12 @@ class Settings(BaseSettings):
     sweeper_interval_seconds: int = 20
 
     def model_post_init(self, __context) -> None:
-        # hosts such as Koyeb/Heroku hand out postgres://; SQLAlchemy 2 only knows postgresql://
-        if self.database_url.startswith("postgres://"):
-            object.__setattr__(self, "database_url", "postgresql://" + self.database_url[len("postgres://"):])
+        # hosts such as Koyeb/Heroku hand out postgres://; SQLAlchemy only knows postgresql://, and 2.1+ would pick
+        # psycopg v3 for it, but we ship psycopg2 - so pin the driver
+        for prefix in ("postgres://", "postgresql://"):
+            if self.database_url.startswith(prefix):
+                object.__setattr__(self, "database_url", "postgresql+psycopg2://" + self.database_url[len(prefix):])
+                break
         if self.environment == "prod" and self.database_url.startswith("sqlite"):
             raise ValueError("DATABASE_URL is not set (or is SQLite) in production; set it to a PostgreSQL URL")
         if not self.jwt_secret:
