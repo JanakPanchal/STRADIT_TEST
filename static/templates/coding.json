@@ -1,0 +1,18 @@
+[
+  {
+    "type": "coding",
+    "body": "Read two integers and print their sum.",
+    "input_format": "Two space-separated integers on one line",
+    "output_format": "A single integer",
+    "function_signature": "a, b = map(int, input().split())\nprint(a + b)",
+    "marks": 10,
+    "difficulty": "easy",
+    "time_limit_ms": 2000,
+    "memory_limit_kb": 128000,
+    "test_cases": [
+      {"input": "1 2", "expected_output": "3", "is_sample": true},
+      {"input": "10 20", "expected_output": "30", "is_sample": false},
+      {"input": "-5 5", "expected_output": "0", "is_sample": false}
+    ]
+  }
+]

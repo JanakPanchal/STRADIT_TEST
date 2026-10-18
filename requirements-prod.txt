@@ -1,0 +1,4 @@
+psycopg2-binary>=2.9
+redis>=5.0
+gunicorn>=22.0
+locust>=2.29

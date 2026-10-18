@@ -1,0 +1,89 @@
+<!doctype html><html lang="en"><head><title>Help &amp; guide</title><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="/static/vendor/bootstrap/bootstrap.min.css" rel="stylesheet"><link href="/static/css/app.css" rel="stylesheet"></head>
+<body>
+<div class="topbar"><div class="brand-mark"><span class="sq"></span>STRADIT &nbsp;/&nbsp; HELP</div><div><a id="back" class="btn btn-outline-secondary btn-sm" href="/dashboard">← Back to my tests</a></div></div>
+<div class="page-head"><div class="container" style="max-width:1040px;padding:0"><h6>Candidate guide</h6><h4>How the assessment works</h4><p>Read this once before your test. It takes about five minutes.</p></div></div>
+<div class="container py-4" style="max-width:1040px"><div class="row g-5">
+<nav class="col-lg-3 guide-toc"><h6>On this page</h6>
+<a href="#before">1 · Before you start</a><a href="#signin">2 · Signing in</a><a href="#stages">3 · The three stages</a><a href="#during">4 · During a test</a><a href="#rules">5 · Rules &amp; warnings</a><a href="#coding">6 · The coding playground</a><a href="#faq">7 · Troubleshooting</a><a href="#after">8 · After the test</a></nav>
+<main class="col-lg-9 guide">
+
+<section id="before"><h5>1 · Before you start</h5>
+<ul><li>Use a <b>desktop or laptop</b> with a current Chrome, Edge or Firefox. Phones and tablets cannot run the test (they cannot hold fullscreen).</li>
+<li>Use a stable connection and close other windows, chat apps and screen-sharing tools. Keep your charger plugged in.</li>
+<li>Sit somewhere quiet. You must work alone, with no notes, phones or other people.</li>
+<li>On the rules page before each test there is a <b>System check</b>. If anything is red, fix it first.</li></ul></section>
+
+<section id="signin"><h5>2 · Signing in</h5>
+<ul><li><b>Registering yourself:</b> choose your college from the list, then your branch and batch. Your password needs at least 8 characters.</li>
+<li><b>Invited by email:</b> open the link in your invitation, choose your own password, then sign in. The link works once and expires after 7 days. If it has expired, use <i>Forgot your password?</i> or ask the administrator to send a new invitation.</li>
+<li><b>Account created with a temporary password:</b> sign in with it; you will be asked to choose a new password straight away.</li>
+<li><b>Forgot your password?</b> On the sign-in page choose <i>Forgot your password?</i>, enter your email and open the link we send (valid for 30 minutes, works once). Nothing arrived? Check spam and wait a minute; for your security the page says the same thing whether or not the email is registered. The administrator can also reset it for you.</li>
+<li>After 5 wrong passwords the account is locked for 10 minutes. Wait, then try again.</li></ul></section>
+
+<section id="stages"><h5>3 · The three stages</h5>
+<div class="tracker mb-3"><div class="step done"><div class="n">Stage 01</div><div class="t">Aptitude</div><div class="s">Multiple choice</div></div><div class="step now"><div class="n">Stage 02</div><div class="t">Behaviour</div><div class="s">Statements, no right answer</div></div><div class="step todo"><div class="n">Stage 03</div><div class="t">Coding</div><div class="s">Write and run code</div></div></div>
+<ul><li>Stages are taken <b>in order</b>. A stage unlocks only when you reach the <b>qualifying score</b> of the previous one. The score you need is shown on the rules page.</li>
+<li>If your score is below the qualifying score you are not eligible for later stages. Your dashboard will show this.</li>
+<li><b>Behaviour</b> questions are statements such as “I stay calm under pressure”. Choose the option that is true for you. There are no trick answers; answer honestly and consistently.</li>
+<li>You get <b>one attempt</b> per stage. Only an administrator can allow a retake.</li></ul></section>
+
+<section id="during"><h5>4 · During a test</h5>
+<ul><li>Click <b>Start</b> on your dashboard, read the rules, tick the agreement and press <b>Start test</b>. The test opens in fullscreen.</li>
+<li>The <b>timer</b> at the top is kept by the server, so changing your computer clock does nothing. When it reaches zero your test is submitted automatically.</li>
+<li><b>Answers save automatically</b> when you choose them. Use the numbered buttons on the side to jump between questions. Green means answered. <b>Clear answer</b> removes your choice.</li>
+<li>Questions and options may appear in a different order from other candidates. That is intentional. Some tests also give each candidate a different set of questions.</li>
+<li>When you finish, press <b>Submit test</b> and confirm. You cannot change answers afterwards.</li>
+<li><b>If your browser or computer crashes:</b> sign in again and press <b>Resume</b>. Your answers and the timer are exactly where they were. The time while you were away still counts.</li></ul></section>
+
+<section id="rules"><h5>5 · Rules &amp; warnings</h5>
+<p>The test watches for behaviour that can indicate cheating. Each of these is recorded as a <b>warning</b> with a time stamp that the administrator can see:</p>
+<ul><li>Leaving fullscreen (including pressing <kbd>Esc</kbd>)</li><li>Switching to another tab or window, or clicking outside the browser</li><li>Copy, cut or paste (except inside the code editor, see section 6)</li><li>Opening developer tools or using blocked shortcuts</li></ul>
+<div class="dq-box mb-3"><p class="mb-1"><b>What happens at the limit</b></p>
+<p class="mb-0">Your test shows how many warnings you have. When you reach the limit, the test is <b>submitted immediately</b> and flagged for review. A single action that triggers several events at once (for example, switching tabs) counts as <b>one</b> warning. Resizing the window is recorded but is not counted.</p></div>
+<p class="mb-1"><b>You can be disqualified</b> by the administrator for impersonation, getting outside help, using a second device, or tampering with the test page. Disqualification applies to the whole recruitment drive.</p>
+<p class="small text-muted">If you exit fullscreen by accident, a screen appears with a <b>Return to fullscreen</b> button. Press it straight away.</p></section>
+
+<section id="coding"><h5>6 · The coding playground</h5>
+<p>Coding questions open a workspace with the <b>problem on the left</b> and an <b>editor and console on the right</b>.</p>
+<ol class="guide-steps">
+<li><b>Read the problem.</b> It lists the input format, output format, limits and sample cases. Your program must <b>read from standard input and write to standard output</b>. Do not print anything extra (no prompts like “Enter a number”).</li>
+<li><b>Pick a language</b> in the toolbar (Python, Java, C++, C or JavaScript). Each language starts with a template. Your code is kept <b>separately per language</b>, and everything is <b>autosaved</b> to the server, so a refresh or crash loses nothing. <i>Saved 10:42:05</i> next to the toolbar shows when.</li>
+<li><b>Run samples</b> <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>Enter</kbd> tests your code on the sample cases and shows <i>Input</i>, <i>Expected output</i> and <i>Your output</i> side by side, plus time and memory. Use it as often as you like (there is a short per-minute limit).</li>
+<li><b>Custom input</b> tab: type your own input and press <b>Run with this input</b> to see what your program prints. Great for edge cases such as zero, negative numbers, very large values.</li>
+<li><b>Submit</b> <kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>Shift</kbd> + <kbd>Enter</kbd> judges your code against <b>all</b> test cases, including <b>hidden</b> ones that are never shown. You see how many passed. You can submit again; your <b>best</b> submission counts. The <b>Submissions</b> tab lists your attempts.</li>
+<li><b>Remember to Submit.</b> Running samples does not score anything. Only a Submit counts towards your marks.</li></ol>
+<p class="mb-1"><b>What the verdicts mean</b></p>
+<table class="table table-sm"><tbody>
+<tr><th style="width:11rem">Accepted</th><td>Your output matched on every case that was checked.</td></tr>
+<tr><th>Wrong Answer</th><td>Your program ran but printed something different from the expected output. Check spacing, line breaks and rounding.</td></tr>
+<tr><th>Time Limit Exceeded</th><td>It took longer than the limit. Look for a loop that is too slow; try a faster approach.</td></tr>
+<tr><th>Compilation Error</th><td>The code did not compile. The message is shown under <i>Errors</i>. Fix the syntax and run again.</td></tr>
+<tr><th>Runtime Error</th><td>The program crashed (for example divide by zero, index out of range, reading input that is not there).</td></tr></tbody></table>
+<p class="mb-1"><b>Editor tips</b></p>
+<ul><li><b>A−</b> / <b>A+</b> change the text size; <b>◐</b> switches the editor between light and dark; <b>Reset</b> restores the starter template for the language you are using.</li>
+<li><b>Copying inside the editor works</b> (cut, copy and paste your own code). <b>Pasting anything from outside the editor is blocked and logged as a warning</b>, and so is dropping text onto it.</li>
+<li>The editor does not auto-complete or suggest code. This is intentional so everyone has the same conditions.</li></ul></section>
+
+<section id="faq"><h5>7 · Troubleshooting</h5>
+<div class="accordion" id="faqs">
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#q1">The “Start test” button is greyed out</button></h2><div id="q1" class="accordion-collapse collapse" data-bs-parent="#faqs"><div class="accordion-body">Tick the agreement checkbox first. If the System check shows a red item, fix that item (for example use a desktop browser, or allow cookies), then press <b>Run check again</b>.</div></div></div>
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#q2">The screen went black and says “Fullscreen exited”</button></h2><div id="q2" class="accordion-collapse collapse" data-bs-parent="#faqs"><div class="accordion-body">You left fullscreen (often by pressing <kbd>Esc</kbd>). That counted as a warning. Press <b>Return to fullscreen</b> straight away. Avoid pressing <kbd>Esc</kbd> or opening other windows during the test.</div></div></div>
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#q3">My internet dropped or the page froze</button></h2><div id="q3" class="accordion-collapse collapse" data-bs-parent="#faqs"><div class="accordion-body">Reconnect, reload the page and sign in if asked, then press <b>Resume</b>. Everything you selected is saved. The timer kept running while you were offline, so resume quickly. If a message says “Could not save answer”, your connection is unstable; check it before continuing.</div></div></div>
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#q4">It says the attempt is closed or already attempted</button></h2><div id="q4" class="accordion-collapse collapse" data-bs-parent="#faqs"><div class="accordion-body">The test was already submitted (by you, by the timer, or by reaching the warning limit). There is one attempt per stage. Ask the administrator if you believe this is a mistake; only they can allow a retake.</div></div></div>
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#q5">A stage is locked or not open yet</button></h2><div id="q5" class="accordion-collapse collapse" data-bs-parent="#faqs"><div class="accordion-body">A locked stage means you have not yet cleared the previous one. “Not open” means the test window has not started; the opening time is shown on your dashboard. “Closed” means the window has ended.</div></div></div>
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#q6">My code works on my computer but not here</button></h2><div id="q6" class="accordion-collapse collapse" data-bs-parent="#faqs"><div class="accordion-body">Use <b>Custom input</b> to run the exact sample. Make sure you read from standard input, print only the answer, and that Java’s class is named <code>Main</code>. A stray debug print or a missing newline is the most common cause of <i>Wrong Answer</i>.</div></div></div>
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#q7">“Code runner is unavailable”</button></h2><div id="q7" class="accordion-collapse collapse" data-bs-parent="#faqs"><div class="accordion-body">The server that runs code is busy or down. Wait ten seconds and try again; your code is saved. If it persists, tell the invigilator, who will contact the administrator.</div></div></div>
+</div><p class="small text-muted mt-3">Still stuck? Tell the invigilator in the room, or contact the administrator who invited you. Do not close the test tab.</p></section>
+
+<section id="after"><h5>8 · After the test</h5>
+<ul><li>Some tests show your score straight away; others only confirm that your answers were recorded. The administrator decides.</li>
+<li>Your dashboard shows each stage as <b>Cleared</b>, <b>Not cleared</b> or <b>In progress</b>. You are <b>Cleared</b> overall once you clear every stage that was assigned to you.</li>
+<li>Final shortlisting is done by the recruitment team.</li></ul></section>
+</main></div></div>
+<script src="/static/vendor/jquery/jquery.min.js"></script><script src="/static/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+<script>
+  // "Back" goes to wherever you came from (the test rules page keeps your place)
+  const ref = document.referrer; if (/\/test\/\d+/.test(ref)) { const b = document.getElementById('back'); b.href = ref; b.textContent = '← Back to the test page'; }
+  if (location.hash) { const t = document.querySelector(location.hash); t && t.scrollIntoView(); }
+</script></body></html>

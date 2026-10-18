@@ -1,0 +1,120 @@
+<!doctype html><html lang="en"><head><title>Test Center</title><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="/static/vendor/bootstrap/bootstrap.min.css" rel="stylesheet"><link href="/static/css/app.css" rel="stylesheet"></head>
+<body><div class="app">
+<aside class="sidebar"><div class="brand-mark"><span class="sq"></span>STRADIT</div>
+<ul><li><a class="active">Test Center</a></li>
+<li><a href="/admin">Overview</a></li><li><a href="/admin/candidates">Candidates</a></li><li><a href="/admin/results">Results</a></li><li><a href="/admin/audit">Audit log</a></li></ul>
+<a class="side-help" href="/admin/help#testcenter" target="_blank">Help &amp; guide</a>
+<div class="side-foot"><div id="admin-who">Administrator</div><button id="logout" class="btn btn-outline-secondary btn-sm">Sign out</button></div></aside>
+
+<section class="content"><div class="page-head"><h6>Administration</h6><h4>Test Center</h4><p>Design each stage with the right question type, preview it as a candidate sees it, then publish.</p><a class="small" href="/admin/help#testcenter" target="_blank">Guide for this page →</a></div>
+<div class="page-body"><div class="tc-layout">
+
+<!-- ================= test list ================= -->
+<aside class="tc-list">
+  <div class="d-flex justify-content-between align-items-center mb-2"><h6 class="mb-0">Tests</h6><button id="tc-new" class="btn btn-primary btn-sm">＋ New test</button></div>
+  <input id="tc-search" class="form-control mb-2" placeholder="Search tests…" autocomplete="off">
+  <div class="tc-chips" id="tc-filters">
+    <button class="on" data-f="all">All</button><button data-f="draft">Draft</button><button data-f="live">Live</button>
+    <span class="tc-sep"></span><button data-s="aptitude">Aptitude</button><button data-s="behaviour">Behaviour</button><button data-s="coding">Coding</button>
+  </div>
+  <div id="tc-items"></div>
+</aside>
+
+<!-- ================= workspace ================= -->
+<section class="tc-work">
+  <div id="tc-empty" class="tc-emptystate">
+    <h5>Build your first assessment</h5>
+    <p class="text-muted">Pick a test on the left, or create a new one. Each stage uses its own question type, and you can preview exactly what candidates will see while you write.</p>
+    <button class="btn btn-primary" id="tc-new2">＋ Create a test</button>
+  </div>
+
+  <div id="tc-main" class="d-none">
+    <div class="tc-head">
+      <div class="min-w-0"><h4 id="tc-title" class="mb-1"></h4><div id="tc-badges"></div></div>
+      <div class="tc-head-actions"><button id="b-clone" class="btn btn-outline-secondary btn-sm">Duplicate</button><button id="b-del" class="btn btn-outline-danger btn-sm">Delete</button>
+        <button id="b-publish" class="btn btn-primary" disabled>Publish</button></div>
+    </div>
+    <ol class="tc-steps" id="steps">
+      <li data-step="settings"><span class="n">1</span><div><b>Settings</b><small id="st-settings">Timing, cutoff, rules</small></div></li>
+      <li data-step="questions"><span class="n">2</span><div><b>Questions</b><small id="st-questions">Add or import</small></div></li>
+      <li data-step="review"><span class="n">3</span><div><b>Review &amp; publish</b><small id="st-review">Final checks</small></div></li>
+    </ol>
+
+    <!-- ---------- 1 settings ---------- -->
+    <div id="step-settings" class="tc-step">
+      <form id="s-form" class="row g-4">
+        <div class="col-xl-8">
+          <div class="tc-group"><h6>Basics</h6><div class="row g-3">
+            <div class="col-md-8"><label for="s-title">Test title</label><input class="form-control" id="s-title" required maxlength="200" placeholder="e.g. Aptitude Round 1 — Campus 2026"></div>
+            <div class="col-md-4"><label>Type</label><div class="tc-typechip" id="s-type"></div></div>
+            <div class="col-md-4"><label for="s-dur">Duration <span class="tc-unit">minutes</span></label><input class="form-control" id="s-dur" type="number" min="1" max="600" required></div>
+          </div></div>
+          <div class="tc-group"><h6>Scoring</h6><div class="row g-3">
+            <div class="col-md-4"><label for="s-cut">Cutoff <span class="tc-unit">marks to clear</span></label><input class="form-control" id="s-cut" type="number" step="any" min="0" required><div class="tc-hint" id="s-cut-h"></div></div>
+            <div class="col-md-4"><label for="s-pool">Questions per candidate</label><input class="form-control" id="s-pool" type="number" min="1" placeholder="All"><div class="tc-hint" id="s-pool-h">Empty = everyone gets every question. A number draws that many at random per candidate.</div></div>
+            <div class="col-md-4"><label>Show result</label><label class="tc-switch"><input type="checkbox" id="s-show"><span></span><em>Candidates see their score after submitting</em></label></div>
+          </div></div>
+          <div class="tc-group"><h6>Schedule <span class="tc-opt">optional</span></h6><div class="row g-3">
+            <div class="col-md-6"><label for="s-start">Opens</label><input class="form-control" id="s-start" type="datetime-local"></div>
+            <div class="col-md-6"><label for="s-end">Closes</label><input class="form-control" id="s-end" type="datetime-local"></div>
+            <div class="col-12"><div class="tc-hint" id="s-win-h">Leave both empty for a test that is always open. A late starter's timer never runs past the closing time.</div></div>
+          </div></div>
+          <div class="tc-group"><h6>Proctoring</h6><div class="row g-3">
+            <div class="col-md-4"><label for="s-maxv">Warnings before auto-submit</label><input class="form-control" id="s-maxv" type="number" min="1" max="100" required>
+              <div class="tc-hint">Leaving fullscreen, switching tab, copy/paste and dev-tools each count (events within 2 s count once).</div></div>
+          </div></div>
+          <div class="tc-savebar"><button class="btn btn-primary" id="s-save">Save settings</button><button type="button" class="btn btn-link" id="s-discard">Discard changes</button><span id="s-state" class="tc-state"></span></div>
+        </div>
+        <div class="col-xl-4"><div class="tc-aside"><h6>What candidates will experience</h6><div id="s-sum"></div></div></div>
+      </form>
+    </div>
+
+    <!-- ---------- 2 questions ---------- -->
+    <div id="step-questions" class="tc-step d-none">
+      <div class="tc-qbar">
+        <div class="tc-stats" id="q-stats"></div>
+        <div class="tc-qactions"><button class="btn btn-outline-secondary btn-sm" id="q-import">⇪ Import file</button><button class="btn btn-primary btn-sm" id="q-add">＋ Add question</button></div>
+      </div>
+      <div class="tc-qtools"><input id="q-search" class="form-control" placeholder="Search questions…" autocomplete="off">
+        <select id="q-diff" class="form-select"><option value="">Any difficulty</option><option>easy</option><option>medium</option><option>hard</option></select>
+        <label class="tc-check"><input type="checkbox" id="q-all"> Select all</label><button class="btn btn-outline-danger btn-sm d-none" id="q-delsel">Delete selected</button></div>
+      <div id="q-list"></div>
+    </div>
+
+    <!-- ---------- 3 review ---------- -->
+    <div id="step-review" class="tc-step d-none"><div id="rv"></div></div>
+  </div>
+</section>
+</div></div></section></div>
+
+<!-- ================= new-test type chooser ================= -->
+<div class="modal fade" id="tc-type-modal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h6 class="modal-title mb-0">New test — choose the type</h6><button class="btn-close" data-bs-dismiss="modal"></button></div>
+<div class="modal-body"><div class="row g-3">
+  <div class="col-md-4"><button class="tc-type" data-new="aptitude"><span class="ic">Aa</span><b>Aptitude</b><em>Multiple choice</em><p>One correct answer per question, marks for each. Reasoning, quantitative, verbal.</p></button></div>
+  <div class="col-md-4"><button class="tc-type" data-new="behaviour"><span class="ic">◐</span><b>Behaviour</b><em>Likert statements</em><p>No right answer. Each option carries a score that measures work style and fit.</p></button></div>
+  <div class="col-md-4"><button class="tc-type" data-new="coding"><span class="ic">&lt;/&gt;</span><b>Coding</b><em>Programming problems</em><p>Candidates write code in 5 languages, judged against hidden test cases in a sandbox.</p></button></div>
+</div></div></div></div></div>
+
+<!-- ================= question builder drawer ================= -->
+<div class="offcanvas offcanvas-end tc-drawer" tabindex="-1" id="tc-drawer" data-bs-backdrop="static">
+  <div class="offcanvas-header"><div><h6 class="mb-0" id="qd-title">Add question</h6><small class="text-muted" id="qd-sub"></small></div><button class="btn-close" id="qd-x"></button></div>
+  <div class="offcanvas-body">
+    <div class="row g-4">
+      <div class="col-lg-7"><form id="qd-form" autocomplete="off"></form></div>
+      <div class="col-lg-5"><div class="tc-preview"><div class="pv-h">Candidate view <span>live preview</span></div><div id="qd-preview"></div></div></div>
+    </div>
+  </div>
+  <div class="offcanvas-footer"><div id="qd-err" class="text-danger small me-auto"></div>
+    <button class="btn btn-link" id="qd-cancel">Cancel</button><button class="btn btn-outline-primary d-none" id="qd-more">Save &amp; add another</button><button class="btn btn-primary" id="qd-save">Save question</button></div>
+</div>
+
+<!-- ================= import dialog ================= -->
+<div class="modal fade" id="tc-import-modal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h6 class="modal-title mb-0">Import questions from a file</h6><button class="btn-close" data-bs-dismiss="modal"></button></div>
+<div class="modal-body">
+  <p class="small text-muted mb-2" id="up-help"></p><a id="up-tpl" href="#" download class="small">Download template</a>
+  <label class="tc-drop mt-3" id="up-drop"><input type="file" id="up-file" accept=".csv,.json" hidden><b>Drop a file here</b> or click to choose<small>CSV or JSON · UTF-8 · up to 2 MB</small></label>
+  <div id="up-preview" class="mt-3"></div></div></div></div></div>
+
+<script src="/static/vendor/jquery/jquery.min.js"></script><script src="/static/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+<script src="/static/js/api.js"></script><script src="/static/js/testcenter.js"></script></body></html>

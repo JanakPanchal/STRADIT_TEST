@@ -1,0 +1,17 @@
+<!doctype html><html lang="en"><head><title>Set your password</title><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="/static/vendor/bootstrap/bootstrap.min.css" rel="stylesheet"><link href="/static/css/app.css" rel="stylesheet"></head>
+<body class="auth-body"><div class="row g-0 min-vh-100">
+<aside class="col-12 col-lg-6 auth-brand d-flex flex-column justify-content-between"><div class="brand-mark"><span class="sq"></span>STRADIT</div>
+<div><h1 class="display-title">Set a new<br>password<span class="dot">.</span></h1><p class="brand-lead">Choose a password only you know. You will use it to sign in and take your tests.</p></div>
+<div class="brand-foot">Server-timed &nbsp;·&nbsp; Fullscreen proctored &nbsp;·&nbsp; Fully audited</div></aside>
+<main class="col-12 col-lg-6 auth-panel d-flex align-items-center"><div class="auth-box w-100">
+<div id="r-load" class="text-muted">Checking your link…</div>
+<div id="r-bad" class="d-none"><h4 class="mb-2">This link no longer works</h4><p class="text-muted">It may have expired or already been used. Links work once.</p><a class="btn btn-primary" href="/forgot">Request a new link</a></div>
+<div id="r-form-box" class="d-none"><h4 class="mb-1" id="r-title">Choose a new password</h4><p class="text-muted mb-4" id="r-sub">At least 8 characters. Use something you do not use anywhere else.</p>
+<form id="r-form"><label for="r-p1">New password</label><input class="form-control mb-1" id="r-p1" type="password" minlength="8" maxlength="72" autocomplete="new-password" required>
+<div class="pw-meter mb-4"><i id="pw-bar"></i><span id="pw-txt" class="small text-muted"></span></div>
+<label for="r-p2">Repeat it</label><input class="form-control mb-1" id="r-p2" type="password" autocomplete="new-password" required><div class="small text-danger mb-4" id="r-mismatch"></div>
+<button class="btn btn-primary w-100 btn-lg" id="r-go">Save password</button></form></div>
+<div id="r-ok" class="d-none"><h4 class="mb-2">Password saved</h4><p class="text-muted">Taking you to the sign-in page…</p><a class="btn btn-primary" href="/login">Sign in now</a></div>
+<p class="mt-5 mb-0"><a href="/login" class="small">← Back to sign in</a></p></div></main></div>
+<script src="/static/vendor/jquery/jquery.min.js"></script><script src="/static/js/api.js"></script><script src="/static/js/reset.js"></script></body></html>

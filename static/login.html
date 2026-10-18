@@ -1,0 +1,50 @@
+<!doctype html><html lang="en"><head><title>Sign in</title><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="/static/vendor/bootstrap/bootstrap.min.css" rel="stylesheet">
+<link href="/static/css/app.css" rel="stylesheet"></head>
+<body class="auth-body">
+<div class="row g-0 min-vh-100">
+  <aside class="col-12 col-lg-6 auth-brand d-flex flex-column justify-content-between">
+    <div class="brand-mark"><span class="sq"></span>STRADIT</div>
+    <div>
+      <h1 class="display-title">Assess.<br>Shortlist.<br>Hire<span class="dot">.</span></h1>
+      <p class="brand-lead">A secure, proctored, three-stage assessment platform for campus recruitment.</p>
+      <ol class="stage-list">
+        <li><span>01</span><div><b>Aptitude</b><small>Timed multiple-choice assessment</small></div></li>
+        <li><span>02</span><div><b>Behaviour</b><small>Scenario and Likert statements</small></div></li>
+        <li><span>03</span><div><b>Coding</b><small>Sandboxed code execution</small></div></li>
+      </ol>
+    </div>
+    <div class="brand-foot">Server-timed &nbsp;·&nbsp; Fullscreen proctored &nbsp;·&nbsp; Fully audited</div>
+  </aside>
+  <main class="col-12 col-lg-6 auth-panel d-flex align-items-center">
+    <div class="auth-box w-100">
+      <div class="auth-switch mb-5">
+        <a class="active pointer" id="t-login">Sign in</a><a class="pointer" id="t-reg">Register</a>
+      </div>
+      <form id="login-form">
+        <h4 class="mb-1">Welcome back</h4><p class="text-muted mb-5">Sign in with the credentials issued to you.</p>
+        <label for="l-email">Email</label>
+        <input class="form-control mb-4" id="l-email" type="email" autocomplete="username" required>
+        <label for="l-pass">Password</label>
+        <input class="form-control mb-2" id="l-pass" type="password" autocomplete="current-password" required>
+        <div class="mb-5"><a href="/forgot" class="small">Forgot your password?</a></div>
+        <button class="btn btn-primary w-100 btn-lg">Sign in</button>
+      </form>
+      <form id="reg-form" class="d-none">
+        <h4 class="mb-1">Create your account</h4><p class="text-muted mb-4">Candidates register once, then take the stages in order.</p>
+        <div class="row g-3">
+          <div class="col-12"><label for="r-name">Full name</label><input class="form-control" id="r-name" required></div>
+          <div class="col-12"><label for="r-email">Email</label><input class="form-control" id="r-email" type="email" autocomplete="email" required></div>
+          <div class="col-12"><label for="r-pass">Password (min 8 characters)</label><input class="form-control" id="r-pass" type="password" minlength="8" autocomplete="new-password" required></div>
+          <div class="col-12"><label for="r-college">College</label><select class="form-select" id="r-college"><option value="">Select your college</option></select></div>
+          <div class="col-6"><label for="r-branch">Branch</label><input class="form-control" id="r-branch"></div>
+          <div class="col-6"><label for="r-batch">Batch</label><input class="form-control" id="r-batch"></div>
+          <div class="col-12 mt-4"><button class="btn btn-primary w-100 btn-lg">Create account</button></div>
+        </div>
+      </form>
+      <p class="small text-muted mt-5 mb-0">Use a desktop browser. Your session is monitored for assessment integrity.</p>
+    </div>
+  </main>
+</div>
+<script src="/static/vendor/jquery/jquery.min.js"></script>
+<script src="/static/js/api.js"></script><script src="/static/js/login.js"></script></body></html>

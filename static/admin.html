@@ -1,0 +1,113 @@
+<!doctype html><html lang="en"><head><title>Admin</title><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="/static/vendor/bootstrap/bootstrap.min.css" rel="stylesheet"><link href="/static/css/app.css" rel="stylesheet"></head>
+<body><div class="app">
+<aside class="sidebar"><div class="brand-mark"><span class="sq"></span>STRADIT</div>
+<ul id="tabs"><li><a href="/admin/test-center" style="color:#fff">Test Center →</a></li>
+<li><a class="active pointer" data-tab="overview" data-help="start" data-title="Overview" data-sub="Where you are in the setup, and what to do next">Overview</a></li>
+<li><a class="pointer" data-tab="tests" data-help="testcenter" data-title="All tests" data-sub="Every test with its settings. Use the Test Center to design questions">All tests</a></li>
+<li><a class="pointer" data-tab="colleges" data-help="colleges" data-title="Colleges" data-sub="Onboard the colleges taking part. Candidates pick from this list when they register">Colleges</a></li>
+<li><a class="pointer" data-tab="cands" data-help="candidates" data-title="Candidates" data-sub="Register, assign tests, review results and proctoring logs">Candidates</a></li>
+<li><a class="pointer" data-tab="integrity" data-help="integrity" data-title="Integrity review" data-sub="Server-side signals: similar code, shared wrong answers, unusually fast scores, warning bursts">Integrity</a></li>
+<li><a class="pointer" data-tab="results" data-help="results" data-title="Results" data-sub="Export and shortlist by cutoff or minimum score">Results</a></li>
+<li><a class="pointer" data-tab="audit" data-help="audit" data-title="Audit log" data-sub="Every login, test start, submission and admin action">Audit log</a></li></ul>
+<a class="side-help" href="/admin/help" target="_blank">Help &amp; guide</a>
+<div class="side-foot"><div id="admin-who">Administrator</div><button id="logout" class="btn btn-outline-secondary btn-sm">Sign out</button></div></aside>
+<section class="content"><div class="page-head"><h6>Administration</h6><h4 id="page-title">Overview</h4><p id="page-sub">Where you are in the setup, and what to do next</p><a id="page-help" class="small" href="/admin/help#start" target="_blank">Guide for this page →</a></div>
+<div class="page-body">
+<div id="tab-overview">
+<div class="stat-row" id="ov-stats"></div>
+<div class="row g-4"><div class="col-xl-7"><h6>Setup checklist</h6><div id="ov-steps"></div></div>
+<div class="col-xl-5"><h6>Need a hand?</h6><div class="card card-body"><p class="small mb-2">The admin guide explains every screen, the CSV and JSON upload formats, what each outcome means, and how to handle common situations.</p>
+<a class="btn btn-primary btn-sm" href="/admin/help" target="_blank">Open the admin guide</a>
+<hr><p class="small mb-1"><b>Before a real drive</b></p><ul class="small mb-0"><li>Run a practice round with a few volunteers on the lab machines.</li><li>Publish the tests and check each one in the Review step.</li><li>Test code execution with a sample coding question.</li></ul></div></div></div></div>
+
+<div id="tab-tests" class="d-none"><div class="row"><div class="col-lg-5">
+<div class="card card-body mb-3"><h6 id="tf-h">Create test</h6><form id="test-form" class="row g-2"><input type="hidden" id="t-id">
+<div class="col-12"><input class="form-control" id="t-title" placeholder="Title" required></div>
+<div class="col-6"><select class="form-select" id="t-stage"><option>aptitude</option><option>behaviour</option><option>coding</option></select></div>
+<div class="col-6"><input class="form-control" id="t-dur" type="number" min="1" placeholder="Duration (min)" required></div>
+<div class="col-6"><label class="small">Opens (optional)</label><input class="form-control" id="t-start" type="datetime-local"></div>
+<div class="col-6"><label class="small">Closes (optional)</label><input class="form-control" id="t-end" type="datetime-local"></div>
+<div class="col-6"><label class="small">Cutoff score (marks)</label><input class="form-control" id="t-cut" type="number" step="any" min="0" value="0"></div>
+<div class="col-6"><label class="small">Max violations</label><input class="form-control" id="t-maxv" type="number" min="1" value="3"></div>
+<div class="col-6 form-check ms-2"><input class="form-check-input" type="checkbox" id="t-show"><label class="form-check-label" for="t-show">Show result to candidate</label></div>
+<div class="col-12"><button class="btn btn-primary">Save test</button> <button type="button" id="t-reset" class="btn btn-link">Reset</button></div></form></div>
+<table class="table table-sm bg-white"><thead><tr><th>Title</th><th>Stage</th><th>Qs</th><th>Cutoff</th><th></th></tr></thead><tbody id="tests-body"></tbody></table></div>
+<div class="col-lg-7"><div id="q-panel" class="card card-body d-none"><div class="d-flex justify-content-between"><h6 id="q-title"></h6>
+<span><label class="btn btn-outline-secondary btn-sm mb-0">Import CSV/JSON<input type="file" id="q-import" accept=".csv,.json" hidden></label></span></div>
+<form id="q-form" class="row g-2 my-2"><div class="col-12"><textarea class="form-control" id="q-body" rows="2" placeholder="Question text" required></textarea></div>
+<div class="col-12"><textarea class="form-control" id="q-opts" rows="4" placeholder="One option per line. Likert: 'text|score'"></textarea></div>
+<div class="col-4"><input class="form-control" id="q-correct" type="number" min="1" placeholder="Correct # (MCQ)"></div>
+<div class="col-4"><input class="form-control" id="q-marks" type="number" step="any" min="0.1" value="1"></div>
+<div class="col-4"><select class="form-select" id="q-diff"><option>easy</option><option selected>medium</option><option>hard</option></select></div>
+<div class="col-12"><button class="btn btn-primary btn-sm">Add question</button> <span class="text-muted small">Coding questions: import JSON (fields: type, body, test_cases[{input,expected_output,is_sample}], …)</span></div></form>
+<div id="q-list"></div></div></div></div></div>
+
+<div id="tab-colleges" class="d-none"><div class="row g-4"><div class="col-xl-4"><div class="card card-body"><h6 id="co-h">Onboard a college</h6>
+<form id="co-form" class="row g-3"><input type="hidden" id="co-id">
+<div class="col-12"><label>College name</label><input class="form-control" id="co-name" required minlength="2"></div>
+<div class="col-4"><label>Code</label><input class="form-control" id="co-code" required minlength="2" maxlength="30" pattern="[A-Za-z0-9_\-]+" placeholder="e.g. IITB" style="text-transform:uppercase"></div>
+<div class="col-4"><label>City</label><input class="form-control" id="co-city"></div><div class="col-4"><label>State</label><input class="form-control" id="co-state"></div>
+<div class="col-12"><label>Address</label><textarea class="form-control" id="co-addr" rows="2"></textarea></div>
+<div class="col-12"><label>Website</label><input class="form-control" id="co-web" placeholder="https://"></div>
+<div class="col-12"><hr class="my-1"><h6 class="mb-0">Placement contact</h6></div>
+<div class="col-12"><label>Contact person</label><input class="form-control" id="co-cname"></div>
+<div class="col-6"><label>Email</label><input class="form-control" id="co-cemail" type="email"></div><div class="col-6"><label>Phone</label><input class="form-control" id="co-cphone" pattern="[0-9+()\-\s]*"></div>
+<div class="col-12"><label>Notes</label><textarea class="form-control" id="co-notes" rows="2"></textarea></div>
+<div class="col-12"><div class="form-check"><input class="form-check-input" type="checkbox" id="co-active" checked><label class="form-check-label" for="co-active">Active (listed on the registration form)</label></div></div>
+<div class="col-12"><button class="btn btn-primary">Save college</button> <button type="button" class="btn btn-link" id="co-reset">Reset</button></div></form></div></div>
+<div class="col-xl-8"><div class="row g-2 mb-3"><div class="col-md-6"><input id="co-search" class="form-control" placeholder="Search name, code or city"></div></div>
+<table class="table table-sm align-middle"><thead><tr><th>College</th><th>Location</th><th>Contact</th><th>Candidates</th><th>Status</th><th></th></tr></thead><tbody id="co-body"></tbody></table></div></div></div>
+
+<div id="tab-cands" class="d-none">
+<div class="stat-row" id="c-tiles"></div>
+<div class="row g-3 mb-3 align-items-end">
+  <div class="col-lg-3 col-md-6"><label>Search</label><input id="f-search" class="form-control" placeholder="Name or email"></div>
+  <div class="col-lg-2 col-md-3 col-6"><label>Batch</label><select id="f-batch" class="form-select"><option value="">All</option></select></div>
+  <div class="col-lg-2 col-md-3 col-6"><label>College</label><select id="f-college" class="form-select"><option value="">All</option></select></div>
+  <div class="col-lg-2 col-md-3 col-6"><label>Branch</label><select id="f-branch" class="form-select"><option value="">All</option></select></div>
+  <div class="col-lg-3 col-md-3 col-6"><label>Assigned test</label><select id="f-test" class="form-select"><option value="">Any</option></select></div>
+  <div class="col-lg-2 col-md-3 col-6"><label>Stage</label><select id="f-stage" class="form-select"><option value="">Any stage</option><option value="aptitude">Aptitude</option><option value="behaviour">Behaviour</option><option value="coding">Coding</option></select></div>
+  <div class="col-lg-2 col-md-3 col-6"><label>Stage result</label><select id="f-sres" class="form-select" disabled><option value="">Any</option><option value="cleared">Cleared</option><option value="not_cleared">Not cleared</option><option value="in_progress">In progress</option><option value="not_started">Not started</option></select></div>
+  <div class="col-lg-2 col-md-3 col-6"><label>Sign-in</label><select id="f-access" class="form-select"><option value="">Any</option><option value="never">Never signed in</option><option value="signed_in">Has signed in</option></select></div>
+  <div class="col-lg-2 col-md-3 col-6"><label>Sort by</label><select id="f-sort" class="form-select"><option value="newest">Newest</option><option value="name">Name</option><option value="score">Highest score</option><option value="violations">Most warnings</option></select></div>
+  <div class="col-lg-4 col-md-6 text-lg-end"><button id="c-invite-all" class="btn btn-outline-primary btn-sm d-none">✉ Invite all not signed in (<span id="c-never">0</span>)</button> <button id="f-reset" class="btn btn-outline-secondary btn-sm">Reset filters</button> <button id="f-export" class="btn btn-primary btn-sm">Export CSV</button></div>
+</div>
+<div class="table-responsive"><table class="table table-sm align-middle"><thead><tr><th style="width:2rem"><input type="checkbox" id="c-all" class="form-check-input"></th><th>Candidate</th><th>Batch · College</th><th>Aptitude</th><th>Behaviour</th><th>Coding</th><th>Warnings</th><th>Outcome</th><th></th></tr></thead><tbody id="c-body"></tbody></table></div>
+<div class="d-flex justify-content-between align-items-center"><div id="c-pager"></div><div><span class="small text-muted me-2" id="c-sel"></span><button id="c-invite-sel" class="btn btn-outline-primary btn-sm d-none">✉ Invite selected</button> <button id="c-bulkdel" class="btn btn-outline-danger btn-sm d-none">Delete selected</button></div></div>
+<div id="c-detail" class="mt-4"></div>
+<hr class="my-5"><h6>Manage candidates</h6>
+<div class="row g-4"><div class="col-lg-6"><div class="card card-body"><h6>Add candidate</h6>
+<form id="c-form" class="row g-2"><div class="col-12"><input class="form-control" id="c-name" placeholder="Name" required></div>
+<div class="col-12"><input class="form-control" id="c-email" type="email" placeholder="Email" required></div>
+<div class="col-6"><select class="form-select" id="c-college"><option value="">College…</option></select></div><div class="col-3"><input class="form-control" id="c-branch" placeholder="Branch"></div>
+<div class="col-3"><input class="form-control" id="c-batch" placeholder="Batch"></div><div class="col-12"><button class="btn btn-primary btn-sm">Create</button>
+<label class="btn btn-outline-secondary btn-sm mb-0">Bulk CSV upload<input type="file" id="c-bulk" accept=".csv" hidden></label>
+<div class="small text-muted mt-1">CSV columns: email,name,college,branch,batch — <i>college</i> must be an onboarded college's exact name or code</div></div></form><div id="c-created" class="mt-2"></div></div></div>
+<div class="col-lg-6"><div class="card card-body"><h6>Assign test</h6><select id="a-test" class="form-select mb-2"></select>
+<input id="a-batch" class="form-control mb-2" placeholder="Batch name, and/or tick candidates in the table above">
+<button id="a-go" class="btn btn-success btn-sm">Assign</button></div></div></div>
+</div>
+
+<div id="tab-results" class="d-none">
+<div class="row g-3 align-items-end mb-3"><div class="col-md-5"><label>Test</label><select id="r-test" class="form-select"></select></div>
+<div class="col-md-7 text-md-end"><button class="btn btn-outline-secondary btn-sm" id="r-table-toggle">View numbers as a table</button></div></div>
+<div id="r-body"><div class="text-muted py-4">Choose a test to see how it went.</div></div>
+<hr class="my-5"><h6>Export &amp; shortlist</h6>
+<div class="card card-body" style="max-width:640px"><div class="form-check mb-2"><input class="form-check-input" type="checkbox" id="r-passed"><label class="form-check-label" for="r-passed">Only those who cleared the cutoff</label></div>
+<div class="row g-2 align-items-end"><div class="col-6"><label>Minimum score (optional)</label><input id="r-min" class="form-control" type="number" step="any" placeholder="e.g. 12"></div><div class="col-6"><button id="r-go" class="btn btn-primary">Download CSV</button></div></div>
+<div class="small text-muted mt-2">The CSV has one row per candidate: score, outcome, warnings and submission time. Cells that start with = + - @ are neutralised so spreadsheets cannot run them.</div></div></div>
+
+<div id="tab-audit" class="d-none"><table class="table table-sm bg-white"><thead><tr><th>At (UTC)</th><th>Actor</th><th>Action</th><th>Entity</th><th>Detail</th><th>IP</th></tr></thead><tbody id="au-body"></tbody></table></div>
+</div></section></div>
+<div class="modal fade" id="c-modal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header"><h6 class="modal-title mb-0">Edit candidate</h6><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+<form id="e-form"><div class="modal-body"><input type="hidden" id="e-id"><div class="row g-3">
+<div class="col-md-6"><label>Full name</label><input class="form-control" id="e-name" required></div><div class="col-md-6"><label>Email</label><input class="form-control" id="e-email" type="email" required></div>
+<div class="col-md-6"><label>College</label><select class="form-select" id="e-college"><option value="">— none —</option></select></div><div class="col-md-3"><label>Branch</label><input class="form-control" id="e-branch"></div><div class="col-md-3"><label>Batch</label><input class="form-control" id="e-batch"></div>
+<div class="col-12"><div class="form-check"><input class="form-check-input" type="checkbox" id="e-active"><label class="form-check-label" for="e-active">Account active (untick to block sign-in immediately)</label></div></div>
+<div class="col-12"><hr><h6>Account actions</h6><button type="button" class="btn btn-outline-secondary btn-sm" id="e-reset">Reset password</button>
+<button type="button" class="btn btn-outline-secondary btn-sm" id="e-dq">Disqualify</button><button type="button" class="btn btn-outline-secondary btn-sm d-none" id="e-reinstate">Reinstate</button>
+<div id="e-out" class="mt-3"></div></div></div></div>
+<div class="modal-footer justify-content-between"><button type="button" class="btn btn-outline-danger" id="e-del">Delete candidate</button><div><button type="button" class="btn btn-link" data-bs-dismiss="modal">Cancel</button><button class="btn btn-primary">Save changes</button></div></div></form></div></div></div>
+<script src="/static/vendor/jquery/jquery.min.js"></script><script src="/static/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+<script src="/static/js/api.js"></script><script src="/static/js/admin.js"></script></body></html>

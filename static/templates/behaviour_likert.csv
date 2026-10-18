@@ -1,0 +1,3 @@
+type,body,options,scores
+likert,I stay calm when a deadline is moved up.,Strongly disagree|Disagree|Neutral|Agree|Strongly agree,1|2|3|4|5
+likert,I prefer to work alone rather than in a team.,Strongly disagree|Disagree|Neutral|Agree|Strongly agree,5|4|3|2|1

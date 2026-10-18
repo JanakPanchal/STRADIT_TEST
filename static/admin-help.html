@@ -1,0 +1,139 @@
+<!doctype html><html lang="en"><head><title>Admin guide</title><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="/static/vendor/bootstrap/bootstrap.min.css" rel="stylesheet"><link href="/static/css/app.css" rel="stylesheet"></head>
+<body>
+<div class="topbar"><div class="brand-mark"><span class="sq"></span>STRADIT &nbsp;/&nbsp; ADMIN GUIDE</div><div><a class="btn btn-outline-secondary btn-sm" href="/admin">← Back to admin</a></div></div>
+<div class="page-head"><div class="container" style="max-width:1100px;padding:0"><h6>Administrator guide</h6><h4>Run a recruitment drive, step by step</h4><p>Everything an administrator needs, in the order you will need it.</p></div></div>
+<div class="container py-4" style="max-width:1100px"><div class="row g-5">
+<nav class="col-lg-3 guide-toc"><h6>On this page</h6>
+<a href="#start">Quick start</a><a href="#colleges">Colleges</a><a href="#testcenter">Test Center</a><a href="#questions">Uploading questions</a><a href="#candidates">Candidates</a><a href="#email">Email setup</a><a href="#monitor">Monitoring &amp; outcomes</a><a href="#integrity">Integrity review</a><a href="#results">Results &amp; export</a><a href="#audit">Audit log</a><a href="#faq">Common situations</a><a href="#glossary">Glossary</a></nav>
+<main class="col-lg-9 guide">
+
+<section id="start"><h5>Quick start</h5>
+<p>The <b>Overview</b> page shows a live checklist. In short:</p>
+<ol class="guide-steps"><li><b>Onboard colleges</b> (Colleges). Candidates pick theirs when they register.</li>
+<li><b>Create a test</b> for each stage in the Test Center. It starts as a <i>draft</i>.</li>
+<li><b>Add questions</b> with the builder or by uploading a file.</li>
+<li><b>Publish.</b> The Review step catches mistakes first (for example, a cutoff nobody can reach).</li>
+<li><b>Add candidates</b> one by one or by CSV. Download the generated passwords; they are shown only once.</li>
+<li><b>Assign tests</b> by batch or by ticking candidates.</li>
+<li><b>Monitor</b> progress in Candidates, and review integrity signals after the test.</li></ol>
+<div class="dq-box"><b>Before a real drive:</b> run a practice round with a few volunteers on the actual lab machines, and test a coding question end to end.</div></section>
+
+<section id="colleges"><h5>Colleges</h5>
+<ul><li><b>Onboard a college</b> with its name, a short unique <b>code</b> (used in CSV uploads, e.g. IITB), location, website and the placement contact. Only active colleges appear on the registration form, and only their names are public.</li>
+<li><b>Hide</b> a college by editing it and un-ticking <i>Active</i>. Existing candidates keep it.</li>
+<li><b>Delete</b> a college only when it has no candidates; otherwise you are asked to <b>move</b> them to another college first.</li>
+<li>Once at least one college exists, registering candidates must choose one. In CSV uploads, the <code>college</code> column takes the exact name or code; an unknown value skips that row with a clear reason.</li></ul></section>
+
+<section id="testcenter"><h5>Test Center</h5>
+<p><b>Layout.</b> The left list shows every test with a Live/Draft dot; search it or filter by status and stage. The workspace on the right has a three-step bar (Settings, Questions, Review &amp; publish) that shows what is done, and a <b>Publish</b> button that is always in reach (it explains why it is disabled). Every step has its own address, for example <code>/admin/test-center/3/questions</code>, so you can bookmark or share it.</p>
+<p><b>Question builder.</b> <i>Add question</i> opens a panel with a <b>live candidate preview</b> beside the form, so you see exactly what candidates will see while you type. In the bank you can search, filter by difficulty, <b>duplicate</b> a question, and select several to delete. Use <i>Save &amp; add another</i> to enter questions quickly. <i>Import file</i> takes a dragged-in CSV or JSON, validates and previews it first.</p>
+<p>Click <b>＋ New test</b> and pick the type. Choose <b>+ Aptitude</b>, <b>+ Behaviour</b> or <b>+ Coding</b>; the stage decides the question type and cannot change later.</p>
+<table class="table table-sm"><thead><tr><th>Stage</th><th>Question type</th><th>Scored by</th></tr></thead><tbody>
+<tr><td>Aptitude</td><td>MCQ, one correct option</td><td>Marks per correct answer</td></tr>
+<tr><td>Behaviour</td><td>Likert statements</td><td>Sum of the score on each chosen option (no right answer)</td></tr>
+<tr><td>Coding</td><td>Programming problem with test cases</td><td>Marks × (cases passed ÷ total cases), best submission</td></tr></tbody></table>
+<p class="mb-1"><b>1 · Settings</b></p>
+<ul><li><b>Cutoff</b> is the number of marks a candidate must reach to unlock the next stage.</li>
+<li><b>Opens / Closes</b> (optional) define the window. A late starter's timer never runs past the closing time.</li>
+<li><b>Warnings before auto-submit</b> is the proctoring limit for this test.</li>
+<li><b>Questions per candidate</b>: leave empty so everyone gets all questions, or enter a number so each candidate is drawn that many <b>at random</b> from the bank. Use a bank at least 2–3× that size, and equal marks per question for a fair comparison. Order and option positions are always shuffled per candidate.</li>
+<li><b>Show result</b> controls whether candidates see their score after submitting.</li></ul>
+<p class="mb-1"><b>2 · Questions</b> — build one at a time, or upload a list (next section). The builder is specific to the type:</p>
+<ul><li><b>MCQ:</b> add or remove options and select the correct one.</li>
+<li><b>Likert:</b> pick a scale preset (5-point agreement, frequency, 4-point forced, 7-point, custom). Tick <i>Reverse-scored</i> for negatively worded statements; the scores flip automatically.</li>
+<li><b>Coding:</b> problem statement, input/output formats, optional starter code, limits, and a table of test cases. <b>Sample</b> cases are shown to candidates; <b>hidden</b> cases are used only for scoring and are never revealed. Add several hidden cases, including edge cases.</li></ul>
+<p class="mb-1"><b>3 · Review &amp; publish</b> — shows totals and warns about problems. Publishing is blocked when there are no questions, when the cutoff exceeds the marks a candidate can score, or when questions per candidate exceeds the bank.</p>
+<p class="small text-muted">Questions are <b>locked</b> once any candidate has started a test, so every candidate is judged on the same material. <b>Duplicate</b> the test to change questions for a new run. You can still edit settings, or unpublish to hide a test.</p></section>
+
+<section id="questions"><h5>Uploading questions</h5>
+<p>In the Test Center, Questions step, choose <b>Download template</b>, fill it in, then pick the file. It is <b>validated and previewed first</b>; if any row is invalid nothing is imported and every problem is listed by row number.</p>
+<p class="mb-1"><b>Aptitude (CSV)</b> — <code>options</code> separated by <code>|</code>; <code>correct</code> is the 1-based number of the right option.</p>
+<pre class="code-out">type,body,options,correct,marks,difficulty
+mcq,What is 15% of 200?,20|25|30|35,3,1,easy</pre>
+<p class="mb-1"><b>Behaviour (CSV)</b> — <code>scores</code> must have one score per option.</p>
+<pre class="code-out">type,body,options,scores
+likert,I stay calm when a deadline moves up.,Strongly disagree|Disagree|Neutral|Agree|Strongly agree,1|2|3|4|5</pre>
+<p class="mb-1"><b>Coding (JSON)</b> — a list; each problem needs at least one sample and one hidden case.</p>
+<pre class="code-out">[{ "type": "coding", "body": "Print the sum of two integers.", "marks": 10,
+   "input_format": "Two integers on one line", "output_format": "One integer",
+   "test_cases": [
+     {"input": "1 2",  "expected_output": "3",  "is_sample": true},
+     {"input": "10 20","expected_output": "30", "is_sample": false} ] }]</pre>
+<p class="small text-muted">Files must be UTF-8 and at most 2 MB (1000 questions). Spreadsheet formulas in text are neutralised on export.</p></section>
+
+<section id="candidates"><h5>Candidates</h5>
+<ul><li><b>Add</b> one candidate (choose their college from the list) or <b>bulk upload</b> a CSV with <code>email,name,college,branch,batch</code>. Passwords are generated; <b>download them immediately</b>. Candidates must change them at first sign-in.</li>
+<li><b>Assign</b> a test by <b>batch name</b> or by ticking rows. A candidate can have one test per stage, and stages unlock in order.</li>
+<li><b>Invitations:</b> instead of handing out passwords, use <b>✉ Invite selected</b> or <b>✉ Invite all not signed in</b> to email each candidate a link to set their own password (valid 7 days, works once, never contains a password). Sending again replaces the old link. The list shows <i>Never signed in · invited …</i> or <i>Signed in …</i> for each candidate, and the <b>Sign-in</b> filter finds everyone who still has not logged in. Email must be configured first (see below); in development mode the links are only written to the server log.</li>
+<li><b>Edit</b> changes details or deactivates sign-in. <b>Reset password</b> issues a new one (shown once). <b>Delete</b> removes the account and all results, permanently.</li>
+<li>In <b>Details</b>: <b>Allow retake</b> deletes that attempt so the candidate can start again; <b>Unassign</b> removes an untaken test. <b>Disqualify / Reinstate</b> are in the Edit window.</li></ul></section>
+
+<section id="email"><h5>Email setup (invitations and password reset)</h5>
+<p>Set these in the server's <code>.env</code> (see the README): <code>MAIL_BACKEND=smtp</code>, <code>SMTP_HOST</code>, <code>SMTP_PORT</code>, <code>SMTP_USER</code>, <code>SMTP_PASSWORD</code>, <code>MAIL_FROM</code>, and <b><code>PUBLIC_URL</code></b>: the exact address candidates open (for example <code>https://assess.yourcollege.edu</code>), because every emailed link starts with it. With the default <code>console</code> backend nothing is sent; the message is printed in the server log.</p>
+<ul><li>Candidates can request their own reset link from <i>Forgot your password?</i>; the page never reveals whether an email is registered, and an account gets at most one reset email a minute.</li>
+<li>Resetting a password also unlocks the account and signs the candidate out everywhere. All of this is recorded in the audit log.</li></ul></section>
+
+<section id="monitor"><h5>Monitoring &amp; outcomes</h5>
+<p>The tiles at the top of Candidates count each outcome and double as filters. Combine them with batch, college, branch, assigned test, stage and stage result. <b>Export CSV</b> downloads exactly what is on screen.</p>
+<table class="table table-sm"><tbody>
+<tr><th style="width:9rem">Cleared</th><td>Cleared <b>every stage assigned</b> to that candidate.</td></tr>
+<tr><th>Not cleared</th><td>Scored below the cutoff on a stage; not eligible for later stages.</td></tr>
+<tr><th>In progress</th><td>A test is running, or a later assigned stage is still to be taken.</td></tr>
+<tr><th>Not started</th><td>Registered or assigned, but no attempt yet.</td></tr>
+<tr><th>Disqualified</th><td>Removed by an administrator.</td></tr></tbody></table>
+<p>The <b>Warnings</b> column is the count of proctoring violations. Reaching the test's limit auto-submits the attempt; it does <b>not</b> disqualify. Open <b>Details</b> for the time-stamped proctoring log and decide.</p></section>
+
+<section id="integrity"><h5>Integrity review</h5>
+<p>Pick a test and press <b>Analyse</b>. These are <b>signals for a human to review, not verdicts</b>.</p>
+<ul><li><b>Attempt flags:</b> unusually fast high scores, many warnings, admin disqualifications.</li>
+<li><b>Shared wrong answers</b> (MCQ): two candidates choosing the <i>same wrong option</i> on many questions. Option order is shuffled per candidate, so this cannot come from copying screen positions.</li>
+<li><b>Similar code</b> (coding): the best accepted submission per candidate is compared after renaming variables and ignoring comments and spacing. Adjust the threshold; very short solutions are ignored on purpose. <b>Compare</b> shows two submissions side by side.</li>
+<li><b>Shared start IP:</b> normal in a lab (one address for everyone); useful mainly outside one.</li></ul></section>
+
+<section id="results"><h5>Results &amp; analytics</h5>
+<p>Choose a test to see how it went. Everything is computed from finished attempts; use <b>View numbers as a table</b> to see the exact figures behind every chart.</p>
+<ul><li><b>Summary tiles:</b> how many completed (and how many are still running or not started), the share who cleared the cutoff, average and median score, median time against the time allowed, and how many were auto-submitted or disqualified.</li>
+<li><b>Score distribution:</b> how many candidates fall in each 10% band of the marks available. Black bars cleared the cutoff, grey bars did not.</li>
+<li><b>Question analysis:</b> for each question, how candidates did. Each question is judged only on the candidates who were <i>served</i> it (important when you use a question pool), and needs at least 5 of them before it can be flagged. Click a question to see how candidates answered each option.
+<table class="table table-sm mt-2"><tbody>
+<tr><th style="width:9rem">▲ Too easy</th><td>95% or more got it right. It does not separate candidates.</td></tr>
+<tr><th>▼ Very hard</th><td>20% or fewer got it right (or passed most test cases). Check it is fair.</td></tr>
+<tr><th>⚑ Check key</th><td>The most-chosen option is a <i>wrong</i> one. The answer key may be wrong, or the question misleading.</td></tr>
+<tr><th>＝ No spread</th><td>A Likert statement where everyone chose the same option.</td></tr>
+<tr><th>∅ Often skipped</th><td>More than half never submitted code for this problem.</td></tr></tbody></table>
+These are prompts to review a question, not verdicts. Questions are locked once candidates start, so use what you learn when you <b>duplicate</b> the test for the next run.</li>
+<li><b>By college / by batch:</b> completed, share who cleared the cutoff, and average score.</li>
+<li><b>Export &amp; shortlist:</b> download the candidate-level CSV, optionally only those who cleared or scored at least a given mark.</li></ul></section>
+
+<section id="audit"><h5>Audit log</h5>
+<p>Every sign-in, test start, submission, violation batch and admin action (including deletes, resets and exports) is recorded with time and IP. Use it to answer “who changed what, and when”.</p></section>
+
+<section id="faq"><h5>Common situations</h5>
+<div class="accordion" id="faqs">
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#a1">A candidate’s computer crashed mid-test</button></h2><div id="a1" class="accordion-collapse collapse" data-bs-parent="#faqs"><div class="accordion-body">They sign in again and press <b>Resume</b>. Answers and code drafts are saved on the server, and the timer kept running. No admin action needed.</div></div></div>
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#a2">A candidate was auto-submitted unfairly</button></h2><div id="a2" class="accordion-collapse collapse" data-bs-parent="#faqs"><div class="accordion-body">Check the proctoring log in Details. If you accept the explanation, open Details and choose <b>Allow retake</b> for that stage. The attempt, answers and warnings are deleted and the candidate can start again.</div></div></div>
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#a3">I need to change a question after candidates started</button></h2><div id="a3" class="accordion-collapse collapse" data-bs-parent="#faqs"><div class="accordion-body">Questions are locked for fairness. Options: duplicate the test and run the corrected version, or delete the test (a two-step confirmation shows how many attempts will be removed) and start again.</div></div></div>
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#a4">A candidate forgot their password</button></h2><div id="a4" class="accordion-collapse collapse" data-bs-parent="#faqs"><div class="accordion-body">Candidates → Edit → <b>Reset password</b>. Give them the new password; they must change it at sign-in. An account locked after repeated wrong passwords unlocks itself after 10 minutes, and a reset also unlocks it.</div></div></div>
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#a5">Coding runs say the code runner is unavailable</button></h2><div id="a5" class="accordion-collapse collapse" data-bs-parent="#faqs"><div class="accordion-body">The Judge0 service is unreachable. Check it is running and that its address and token in the server settings match. Candidates’ code is saved as drafts meanwhile.</div></div></div>
+<div class="accordion-item"><h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#a6">A college name was spelled wrong or two colleges are duplicates</button></h2><div id="a6" class="accordion-collapse collapse" data-bs-parent="#faqs"><div class="accordion-body">Edit the name in Colleges to fix it everywhere. For duplicates, delete one and choose the other when asked where to move its candidates.</div></div></div>
+</div></section>
+
+<section id="glossary"><h5>Glossary</h5>
+<table class="table table-sm"><tbody>
+<tr><th style="width:11rem">Stage</th><td>One of Aptitude, Behaviour, Coding. Taken in that order.</td></tr>
+<tr><th>Cutoff</th><td>Marks needed to clear a stage and unlock the next.</td></tr>
+<tr><th>Draft / Live</th><td>Draft tests are invisible to candidates; Live (published) tests are visible to those assigned.</td></tr>
+<tr><th>Question bank / pool</th><td>All questions in a test. With <i>Questions per candidate</i> set, each candidate is drawn a random subset.</td></tr>
+<tr><th>Warning</th><td>A counted proctoring event (leaving fullscreen, switching tab, copy/paste, developer tools).</td></tr>
+<tr><th>Auto-submit</th><td>The test is submitted when time ends or the warning limit is reached.</td></tr>
+<tr><th>Sample / hidden case</th><td>Sample cases are shown to candidates; hidden cases only score submissions.</td></tr>
+<tr><th>Outcome</th><td>The overall status of a candidate: Cleared, Not cleared, In progress, Not started, Disqualified.</td></tr></tbody></table></section>
+</main></div></div>
+<script src="/static/vendor/jquery/jquery.min.js"></script><script src="/static/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+<script>
+  if (location.hash) { const t = document.querySelector(location.hash); t && t.scrollIntoView(); }
+  // highlight the section being read in the contents list
+  const links = [...document.querySelectorAll('.guide-toc a')], secs = links.map(a => document.querySelector(a.getAttribute('href')));
+  addEventListener('scroll', () => { let cur = 0; secs.forEach((s, i) => { if (s.getBoundingClientRect().top < 140) cur = i; }); links.forEach((a, i) => a.classList.toggle('on', i === cur)); });
+</script></body></html>

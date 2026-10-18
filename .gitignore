@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+*.egg-info/
+.coverage
+htmlcov/
+
+# Secrets and local config
+.env
+deploy/certs/
+
+# Local databases (SQLite dev DB and its WAL files)
+*.db
+*.db-shm
+*.db-wal
+*.sqlite3
+
+# Generated load-test data and backups
+loadtest_users.csv
+backups/
+*.sql.gz
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store

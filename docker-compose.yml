@@ -1,0 +1,84 @@
+# Production-style stack: Nginx(TLS) -> API(gunicorn x N) -> Postgres, Redis (rate limits), Judge0 (sandbox).
+# Dev:   docker compose up --build            (HTTP on :8080 unless certs are mounted)
+# Needs a .env (copy .env.example) with at least: JWT_SECRET, ADMIN_PASSWORD, POSTGRES_PASSWORD, JUDGE0_AUTH_TOKEN
+services:
+  api:
+    build: .
+    env_file: .env
+    environment:
+      ENVIRONMENT: prod
+      DATABASE_URL: postgresql+psycopg2://assess:${POSTGRES_PASSWORD}@db:5432/assess
+      RATE_LIMIT_STORAGE: redis://redis:6379/0
+      JUDGE0_URL: http://judge0:2358
+      COOKIE_SECURE: "true"
+      CORS_ORIGINS: ${PUBLIC_ORIGIN:-https://localhost}
+    depends_on:
+      db: { condition: service_healthy }
+      redis: { condition: service_started }
+    restart: unless-stopped
+    expose: ["8000"]
+
+  nginx:
+    image: nginx:1.27-alpine
+    ports: ["80:80", "443:443"]
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./deploy/certs:/etc/nginx/certs:ro      # fullchain.pem + privkey.pem
+    depends_on: [api]
+    restart: unless-stopped
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: assess
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: assess
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U assess"]
+      interval: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+
+  # ---- Judge0 CE (self-hosted code runner) -------------------------------------
+  # NOTE: Judge0 needs `privileged: true` for its isolate sandbox and (v1.13.x) a host using
+  # cgroup v1. On cgroup-v2 hosts add `systemd.unified_cgroup_hierarchy=0` to the kernel cmdline.
+  # Keep it on an internal network: only the api container can reach it.
+  judge0:
+    image: judge0/judge0:1.13.1
+    env_file: deploy/judge0.conf
+    privileged: true
+    depends_on: [judge0-db, judge0-redis]
+    networks: [default, judge]
+    restart: unless-stopped
+  judge0-workers:
+    image: judge0/judge0:1.13.1
+    command: ["./scripts/workers"]
+    env_file: deploy/judge0.conf
+    privileged: true
+    depends_on: [judge0-db, judge0-redis]
+    networks: [judge]
+    restart: unless-stopped
+  judge0-db:
+    image: postgres:16-alpine
+    env_file: deploy/judge0.conf
+    volumes: ["judge0data:/var/lib/postgresql/data"]
+    networks: [judge]
+    restart: unless-stopped
+  judge0-redis:
+    image: redis:7-alpine
+    command: ["bash", "-c", 'docker-entrypoint.sh --appendonly no --requirepass "$$REDIS_PASSWORD"']
+    env_file: deploy/judge0.conf
+    networks: [judge]
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  judge0data:
+networks:
+  judge:
+    internal: true

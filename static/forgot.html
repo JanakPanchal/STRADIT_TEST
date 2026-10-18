@@ -1,0 +1,13 @@
+<!doctype html><html lang="en"><head><title>Forgot password</title><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="/static/vendor/bootstrap/bootstrap.min.css" rel="stylesheet"><link href="/static/css/app.css" rel="stylesheet"></head>
+<body class="auth-body"><div class="row g-0 min-vh-100">
+<aside class="col-12 col-lg-6 auth-brand d-flex flex-column justify-content-between"><div class="brand-mark"><span class="sq"></span>STRADIT</div>
+<div><h1 class="display-title">Locked<br>out<span class="dot">.</span></h1><p class="brand-lead">Enter your email and we will send you a link to choose a new password.</p></div>
+<div class="brand-foot">Server-timed &nbsp;·&nbsp; Fullscreen proctored &nbsp;·&nbsp; Fully audited</div></aside>
+<main class="col-12 col-lg-6 auth-panel d-flex align-items-center"><div class="auth-box w-100">
+<div id="f-form-box"><h4 class="mb-1">Forgot your password?</h4><p class="text-muted mb-5">We will email you a link. It works once and expires in 30 minutes.</p>
+<form id="f-form"><label for="f-email">Email</label><input class="form-control mb-5" id="f-email" type="email" autocomplete="username" required>
+<button class="btn btn-primary w-100 btn-lg" id="f-go">Send reset link</button></form></div>
+<div id="f-done" class="d-none"><h4 class="mb-2">Check your email</h4><p id="f-msg" class="text-muted"></p><div class="alert small">Nothing arrived? Look in spam, wait a minute, or ask the administrator who invited you to send a new invitation.</div></div>
+<p class="mt-5 mb-0"><a href="/login" class="small">← Back to sign in</a></p></div></main></div>
+<script src="/static/vendor/jquery/jquery.min.js"></script><script src="/static/js/api.js"></script><script src="/static/js/forgot.js"></script></body></html>

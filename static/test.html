@@ -1,0 +1,43 @@
+<!doctype html><html lang="en"><head><title>Assessment</title><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<link href="/static/vendor/bootstrap/bootstrap.min.css" rel="stylesheet">
+<link href="/static/css/app.css" rel="stylesheet"></head>
+<body class="proctored">
+<div id="fs-overlay"><div>
+<h3>Fullscreen exited</h3><p>This has been logged (<span id="vcount">0</span>/<span id="vmax">0</span> warnings). Return to fullscreen to continue.</p>
+<button id="fs-back" class="btn btn-warning btn-lg">Return to fullscreen</button></div></div>
+<div id="intro"><div class="topbar"><div class="brand-mark"><span class="sq"></span>STRADIT &nbsp;/&nbsp; ASSESSMENT</div><a href="/help" target="_blank" class="btn btn-outline-secondary btn-sm">Help &amp; guide</a></div>
+<div class="page-head"><div class="container" style="max-width:980px;padding:0"><h6>Before you begin</h6><h4>Rules &amp; regulations</h4><p id="i-test"></p></div></div>
+<div class="container py-4" style="max-width:980px">
+<div class="stat-row"><div><div class="v" id="s-dur">–</div><div class="l">Minutes</div></div><div><div class="v" id="s-q">–</div><div class="l">Questions</div></div>
+<div><div class="v" id="s-cut">–</div><div class="l">Qualifying score</div></div><div><div class="v" id="s-warn">–</div><div class="l">Warnings allowed</div></div></div>
+<div class="card card-body mb-4" id="syscheck"><div class="d-flex justify-content-between align-items-center"><h6 class="mb-0">System check</h6>
+<span><a href="/help#faq" target="_blank" class="small me-3">Need help?</a><button id="sc-again" class="btn btn-outline-secondary btn-sm">Run check again</button></span></div><div id="sc-rows" class="mt-3 small">Checking…</div></div>
+<div class="row g-5"><div class="col-md-6"><h6>Test rules</h6><ol class="stage-list-light">
+<li><b>One attempt only.</b> There are no retakes. If your browser closes you may resume, but the timer keeps running.</li>
+<li><b>Stay in fullscreen</b> on this tab for the whole test. Do not open other tabs, windows or applications.</li>
+<li><b>No copying or pasting,</b> no right-click, no developer tools, no printing or saving the page.</li>
+<li><b>Work alone.</b> No phones, notes, second screens, other people or AI tools.</li>
+<li><b>The server keeps the time.</b> Answers autosave. When time ends the test is submitted automatically.</li>
+<li><b>Stages are sequential.</b> You must reach the qualifying score of each stage to unlock the next.</li>
+<li>Use a desktop browser with a stable connection.</li></ol></div>
+<div class="col-md-6"><h6>Warnings &amp; disqualification</h6><div class="dq-box">
+<p class="mb-2"><b>Each of the following is logged as a warning:</b></p>
+<ul><li>Leaving fullscreen</li><li>Switching tab or window / losing focus</li><li>Copy, cut or paste attempts</li><li>Opening developer tools</li></ul>
+<p class="mb-2"><b>You will be removed from the test when:</b></p>
+<ul class="dq-list"><li>You reach <b id="dq-n">the maximum number of</b> warnings — your test is <b>submitted immediately</b> and flagged for review.</li>
+<li>The administrator finds malpractice in the proctoring log: impersonation, outside help, a second device, or tampering with the test page. This results in <b>disqualification</b> from the whole drive.</li>
+<li>Your score is below the qualifying score — you are <b>not eligible</b> for later stages.</li></ul>
+<p class="small text-muted mb-0">Every warning is time-stamped by the server and visible to the administrator. Resizing the window is recorded but is not counted as a warning.</p></div></div></div>
+<div class="form-check my-4"><input class="form-check-input" type="checkbox" id="agree"><label class="form-check-label" for="agree">I have read and understood the rules and the disqualification criteria, and I agree to follow them.</label></div>
+<button id="begin" class="btn btn-primary btn-lg" disabled>Start test</button> <a href="/dashboard" class="btn btn-link">Back to dashboard</a></div></div>
+<div id="main" class="d-none"><nav class="navbar px-4 sticky-top"><b id="stage-name"></b>
+<span>Warnings: <b id="warn">0</b>/<b id="warn-max">0</b></span>
+<span class="fs-5 fw-bold" id="timer">--:--</span><button id="finish" class="btn btn-success btn-sm">Submit test</button></nav>
+<div class="container-fluid mt-3"><div class="row"><div class="col-md-9"><div class="card"><div class="card-body" id="qbox"></div>
+<div class="card-footer d-flex justify-content-between"><button id="prev" class="btn btn-outline-secondary">Previous</button><button id="next" class="btn btn-primary">Next</button></div></div></div>
+<div class="col-md-3"><div class="card card-body q-palette" id="palette"></div></div></div></div></div>
+<div id="done" class="container d-none" style="max-width:640px"><div class="card card-body mt-5 text-center"><h3>Test submitted</h3><p id="done-msg"></p>
+<a class="btn btn-primary" href="/dashboard">Back to dashboard</a></div></div>
+<script src="/static/vendor/jquery/jquery.min.js"></script>
+<script src="/static/vendor/bootstrap/bootstrap.bundle.min.js"></script>
+<script src="/static/js/api.js"></script><script src="/static/js/proctor.js"></script><script src="/static/js/playground.js"></script><script src="/static/js/test.js"></script></body></html>
