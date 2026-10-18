@@ -54,6 +54,11 @@ class Settings(BaseSettings):
     sweeper_interval_seconds: int = 20
 
     def model_post_init(self, __context) -> None:
+        # hosts such as Koyeb/Heroku hand out postgres://; SQLAlchemy 2 only knows postgresql://
+        if self.database_url.startswith("postgres://"):
+            object.__setattr__(self, "database_url", "postgresql://" + self.database_url[len("postgres://"):])
+        if self.environment == "prod" and self.database_url.startswith("sqlite"):
+            raise ValueError("DATABASE_URL is not set (or is SQLite) in production; set it to a PostgreSQL URL")
         if not self.jwt_secret:
             if self.environment == "prod":
                 raise ValueError("JWT_SECRET must be set in production")
