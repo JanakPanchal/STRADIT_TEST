@@ -40,6 +40,7 @@ $(async function () {
 
   $('#begin').on('click', async function () {
     $(this).prop('disabled', true);
+    Proctor.reenterFullscreen();   // must run inside the click: the browser drops the user gesture after a network wait
     let started;
     try { started = await Api.post('/tests/' + testId + '/start'); } catch (e) { location.href = '/dashboard'; return; }
     const d = started.data; attemptId = d.attempt_id;
@@ -52,6 +53,7 @@ $(async function () {
       onClosed: () => finish(),
     });
     $('#intro').addClass('d-none'); $('#main').removeClass('d-none');
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) $('#fs-overlay').css('display', 'flex');  // refused: make the candidate enter it
     applyOverview(d.overview); cache[1] = d.first_question; show(1);
     tick = setInterval(() => { remaining = Math.max(0, remaining - 1); drawTimer(); if (remaining === 0) submit(true); }, 1000);
     setInterval(syncOverview, 30000);  // re-sync with the server clock
@@ -70,9 +72,13 @@ $(async function () {
   }
   function syncOverview() { if (!finished) Api.get('/attempts/' + attemptId + '/overview', null, { silent: true }).then(r => applyOverview(r.data)).catch(xhr => { if (xhr && xhr.status === 409) finish(); }); }
   function drawPalette() {
-    let h = '';
-    for (let n = 1; n <= total; n++) h += '<button class="btn btn-sm ' + (n === current ? 'btn-primary' : answered[n] ? 'btn-success' : 'btn-outline-secondary') + '" data-n="' + n + '">' + n + '</button>';
-    $('#palette').html(h);
+    let h = '', done = 0;
+    for (let n = 1; n <= total; n++) {
+      if (answered[n]) done++;
+      h += '<button class="btn btn-sm ' + (n === current ? 'btn-primary' : answered[n] ? 'btn-success' : 'btn-outline-secondary') + '" data-n="' + n + '" title="Question ' + n + '">' + n + '</button>';
+    }
+    $('#palette').html('<div class="pal-head"><span>Questions</span><b>' + done + ' / ' + total + ' answered</b></div><div class="pal-grid">' + h + '</div>' +
+      '<div class="pal-legend"><span><i class="lg lg-cur"></i>Current</span><span><i class="lg lg-ans"></i>Answered</span><span><i class="lg lg-no"></i>Not answered</span></div>');
   }
   $('#palette').on('click', 'button', function () { flushSave(); show(+$(this).data('n')); });
   $('#prev').on('click', () => { flushSave(); if (current > 1) show(current - 1); });

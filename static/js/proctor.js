@@ -25,7 +25,9 @@ const Proctor = (function ($) {
 
   function enterFullscreen() {
     const el = document.documentElement;
-    return (el.requestFullscreen ? el.requestFullscreen() : Promise.reject()).catch(() => {});
+    if (document.fullscreenElement || document.webkitFullscreenElement) return Promise.resolve();
+    const req = el.requestFullscreen || el.webkitRequestFullscreen;
+    try { return Promise.resolve(req && req.call(el)).catch(() => {}); } catch (e) { return Promise.resolve(); }
   }
 
   function bind() {
