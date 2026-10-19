@@ -93,6 +93,7 @@ label, .form-check-label { font-size: .8rem; }
 #qbox .fs-5 { font-size: 1.35rem !important; font-weight: 500; letter-spacing: -.01em; }
 #timer { font-variant-numeric: tabular-nums; font-size: 1.8rem !important; letter-spacing: -.03em; }
 .text-danger { color: var(--accent) !important; }
+#tab-overlay { position: fixed; inset: 0; background: rgba(17,17,17,.96); z-index: 2100; display: none; color: #fff; align-items: center; justify-content: center; text-align: center; padding: 2rem; }
 #fs-overlay { position: fixed; inset: 0; background: rgba(17,17,17,.96); z-index: 2000; display: none; color: #fff; }
 #fs-overlay .btn-warning { background: var(--accent); border-color: var(--accent); }
 pre.code-out { background: #f4f4f4; color: var(--ink); padding: .7rem; border: 0; border-left: 4px solid var(--ink); max-height: 220px; overflow: auto; }

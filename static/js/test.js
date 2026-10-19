@@ -24,6 +24,7 @@ $(async function () {
     let storage = false; try { sessionStorage.setItem('_t', '1'); sessionStorage.removeItem('_t'); storage = navigator.cookieEnabled; } catch (e) {}
     storage ? add('ok', 'Cookies and storage are enabled', 'Needed to keep you signed in.') : add('fail', 'Cookies or storage are blocked', 'Allow cookies for this site (not a private/incognito window with blocking).');
     innerWidth >= 1000 && innerHeight >= 600 ? add('ok', 'Screen size is large enough', innerWidth + ' × ' + innerHeight + ' px') : add('warn', 'Your window is small (' + innerWidth + ' × ' + innerHeight + ' px)', 'Maximise the window or use a larger screen so the editor and questions fit.');
+    TabGuard.count() ? add('fail', 'Other tabs of this site are open', 'Close every other tab and window, then this check turns green on its own.') : add('ok', 'No other tabs open', 'Keep this the only tab during the test.');
     const ua = navigator.userAgent; /Mobi|Android|iPhone|iPad/i.test(ua) ? add('fail', 'Phones and tablets are not supported', 'Use a laptop or desktop computer.') : (/Chrome|Chromium|Edg|Firefox/i.test(ua) ? add('ok', 'Browser is supported', '') : add('warn', 'Untested browser', 'Chrome, Edge or Firefox are recommended.'));
     try {
       const t0 = performance.now(); const h = await $.getJSON('/api/v1/health'); const ms = Math.round(performance.now() - t0);
@@ -36,6 +37,8 @@ $(async function () {
     sysOk = critical; syncStart(); return critical;
   }
   $('#sc-again').on('click', systemCheck); systemCheck();
+  // other tabs: re-run the check on the rules page, block the screen during the test
+  TabGuard.onChange(c => { if (finished) return; if ($('#main').hasClass('d-none')) systemCheck(); else $('#tab-overlay').css('display', c ? 'flex' : 'none'); });
   $('#agree').on('change', syncStart);
 
   $('#begin').on('click', async function () {
@@ -135,7 +138,7 @@ $(async function () {
   async function finish(msg, data) {
     if (finished) return; finished = true; clearInterval(tick); Proctor.stop(); Playground.unmount();
     if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
-    $('#fs-overlay').hide(); $('#main,#intro').addClass('d-none'); $('#done').removeClass('d-none');
+    $('#fs-overlay,#tab-overlay').hide(); $('#main,#intro').addClass('d-none'); $('#done').removeClass('d-none');
     try { data = data || (await Api.get('/attempts/' + attemptId + '/result', null, { silent: true })).data; } catch (e) { data = {}; }
     let t = msg ? msg + ' ' : '';
     t += data.score !== undefined ? 'Score: ' + data.score + '/' + data.max_score + ' (cutoff ' + data.cutoff + ') – ' + (data.passed ? 'you cleared this stage.' : 'you did not clear this stage.') : (data.message || 'Your responses were recorded.');

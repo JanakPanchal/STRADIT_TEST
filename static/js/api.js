@@ -115,3 +115,18 @@ const Api = (function ($) {
     },
   };
 })(jQuery);
+
+// Tab guard: every page of the site announces itself so the test page can tell when other tabs are open.
+// (A browser cannot see tabs of OTHER sites; those are caught by the tab-switch/blur proctoring instead.)
+const TabGuard = (function () {
+  const id = Math.random().toString(36).slice(2), peers = {}, listeners = [];
+  let ch = null, last = 0;
+  try { ch = new BroadcastChannel('stradit-tabs'); } catch (e) { return { count: () => 0, onChange: () => {} }; }
+  const count = () => { const now = Date.now(); Object.keys(peers).forEach(k => { if (now - peers[k] > 5000) delete peers[k]; }); return Object.keys(peers).length; };
+  const ping = () => { ch.postMessage({ id }); const c = count(); if (c !== last) { last = c; listeners.forEach(f => f(c)); } };
+  ch.onmessage = e => { if (e.data && e.data.id && e.data.id !== id) { const had = e.data.id in peers; peers[e.data.id] = Date.now(); if (!had) ping(); } };
+  setInterval(ping, 2000); ping();
+  window.addEventListener('pagehide', () => { try { ch.postMessage({ id, bye: 1 }); } catch (e) {} });
+  ch.addEventListener('message', e => { if (e.data && e.data.bye) { delete peers[e.data.id]; ping(); } });
+  return { count, onChange: f => listeners.push(f) };
+})();
