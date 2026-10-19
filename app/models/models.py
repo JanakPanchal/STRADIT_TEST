@@ -92,6 +92,8 @@ class Question(Base):
     correct_option: Mapped[int | None] = mapped_column(Integer, nullable=True)
     marks: Mapped[float] = mapped_column(Float, default=1)
     difficulty: Mapped[str] = mapped_column(String(20), default="medium")
+    # likert only: the personality trait or competency this statement measures (lower-case, e.g. "conscientiousness")
+    trait: Mapped[str | None] = mapped_column(String(40), nullable=True)
     # coding-only
     input_format: Mapped[str | None] = mapped_column(Text, nullable=True)
     output_format: Mapped[str | None] = mapped_column(Text, nullable=True)

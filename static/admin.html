@@ -38,6 +38,7 @@
 <form id="q-form" class="row g-2 my-2"><div class="col-12"><textarea class="form-control" id="q-body" rows="2" placeholder="Question text" required></textarea></div>
 <div class="col-12"><textarea class="form-control" id="q-opts" rows="4" placeholder="One option per line. Likert: 'text|score'"></textarea></div>
 <div class="col-4"><input class="form-control" id="q-correct" type="number" min="1" placeholder="Correct # (MCQ)"></div>
+<div class="col-12"><input class="form-control" id="q-trait" maxlength="40" placeholder="Trait (Likert, optional) e.g. conscientiousness"></div>
 <div class="col-4"><input class="form-control" id="q-marks" type="number" step="any" min="0.1" value="1"></div>
 <div class="col-4"><select class="form-select" id="q-diff"><option>easy</option><option selected>medium</option><option>hard</option></select></div>
 <div class="col-12"><button class="btn btn-primary btn-sm">Add question</button> <span class="text-muted small">Coding questions: import JSON (fields: type, body, test_cases[{input,expected_output,is_sample}], …)</span></div></form>

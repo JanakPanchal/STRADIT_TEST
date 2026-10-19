@@ -70,6 +70,7 @@ $(async function () {
     const lines = $('#q-opts').val().split('\n').map(s => s.trim()).filter(Boolean);
     const options = lines.map(l => { if (!likert) return { text: l }; const i = l.lastIndexOf('|'); return { text: l.slice(0, i), score: parseFloat(l.slice(i + 1)) }; });
     const body = { type: likert ? 'likert' : 'mcq', body: $('#q-body').val(), options, marks: +$('#q-marks').val() || 1, difficulty: $('#q-diff').val() };
+    if (likert) body.trait = $('#q-trait').val().trim() || null;
     if (!likert) body.correct_option = ($('#q-correct').val() ? +$('#q-correct').val() - 1 : null);
     try { await Api.post('/admin/tests/' + curTest.id + '/questions', body); $('#q-form')[0].reset(); openQuestions(curTest); loadTests(); } catch (e) {}
   });
@@ -202,6 +203,32 @@ $(async function () {
     if (!confirm('Remove this test from the candidate?')) return;
     try { await Api.del('/admin/candidates/' + cid + '/tests/' + tid); Api.toast('Unassigned', 'success'); showResults(cid); loadCands(); } catch (e) {}
   });
+  // personality profile (behaviour stage): radar + trait bars + reliability flags + interviewer prompts
+  function radar(traits) {
+    const n = traits.length, R = 78, C = 110, pt = (i, v) => { const a = -Math.PI / 2 + i * 2 * Math.PI / n; return [C + Math.cos(a) * R * v / 100, C + Math.sin(a) * R * v / 100]; };
+    const poly = v => traits.map((t, i) => pt(i, v(t)).map(x => x.toFixed(1)).join(',')).join(' ');
+    let g = [25, 50, 75, 100].map(r => '<polygon points="' + poly(() => r) + '" class="rd-grid"/>').join('') + traits.map((t, i) => { const [x, y] = pt(i, 100); return '<line x1="' + C + '" y1="' + C + '" x2="' + x.toFixed(1) + '" y2="' + y.toFixed(1) + '" class="rd-grid"/>'; }).join('');
+    g += '<polygon points="' + poly(t => t.score ?? 0) + '" class="rd-area"/>' + traits.map((t, i) => { const [x, y] = pt(i, t.score ?? 0); return '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="3.5" class="rd-dot"/>'; }).join('');
+    g += traits.map((t, i) => { const [x, y] = pt(i, 122), a = x < C - 8 ? 'end' : x > C + 8 ? 'start' : 'middle'; return '<text x="' + x.toFixed(1) + '" y="' + (y + 3).toFixed(1) + '" text-anchor="' + a + '" class="rd-lab">' + E(t.label.length > 16 ? t.label.slice(0, 15) + '…' : t.label) + '</text>'; }).join('');
+    return '<svg viewBox="-30 -4 280 228" class="radar" role="img" aria-label="Trait profile radar chart">' + g + '</svg>';
+  }
+  function personalityHtml(p) {
+    if (!p) return '<div class="small text-muted mt-2">No personality profile: tag the behaviour questions with a trait in the Test Center to get one.</div>';
+    const REL = { ok: ['Answers look consistent', 'success'], caution: ['Treat with caution', 'warning'], low: ['Low confidence', 'danger'] }[p.reliability];
+    let h = '<div class="pp mt-3"><div class="d-flex justify-content-between align-items-center flex-wrap gap-2"><h6 class="mb-0">Personality profile</h6><span class="badge text-bg-' + REL[1] + '">' + REL[0] + '</span></div>';
+    const T = p.traits.filter(t => t.score !== null);
+    h += '<div class="pp-grid">' + (T.length >= 3 ? '<div>' + radar(T) + '</div>' : '') + '<div class="pp-bars">' + (p.traits.map(t => {
+      const band = t.band || 'none';
+      return '<div class="pp-row"><div class="pp-name">' + E(t.label) + '<span class="pp-n">' + t.answered + '/' + t.items + ' answered</span></div>' +
+        '<div class="pp-track"><i class="pp-fill ' + band + '" style="width:' + (t.score ?? 0) + '%"></i><b class="pp-mark" style="left:40%"></b><b class="pp-mark" style="left:70%"></b></div>' +
+        '<div class="pp-val">' + (t.score === null ? '–' : Math.round(t.score) + '%') + '<span class="pp-n">' + (t.percentile === null ? '' : 'top ' + Math.max(1, 100 - t.percentile) + '%') + '</span></div></div>';
+    }).join('') || '<div class="text-muted">No scored traits.</div>') +
+      '<div class="pp-key small text-muted">Bars show % of the scale. Marks at 40% and 70%: below 40 low, 70 and over high. ' + (p.cohort_size >= p.min_cohort ? 'Ranking is among ' + p.cohort_size + ' candidates who took this test.' : 'Ranking appears once ' + p.min_cohort + ' candidates have submitted (' + p.cohort_size + ' so far).') + '</div></div></div>';
+    if (p.flags.length) h += '<div class="pp-flags">' + p.flags.map(f => '<div class="pp-flag"><b>' + E(f.label) + '</b><span>' + E(f.detail) + '</span></div>').join('') + '<div class="small text-muted">' + E(p.note) + '</div></div>';
+    if (p.prompts.length) h += '<details class="mt-2" open><summary>Interview prompts (' + p.prompts.length + ')</summary>' + p.prompts.map(x => '<div class="pp-prompt"><b>' + E(x.trait) + '</b> <span class="text-muted small">' + E(x.reason) + '</span><ul>' + x.questions.map(q => '<li>' + E(q) + '</li>').join('') + '</ul></div>').join('') + '</details>';
+    else h += '<div class="small text-muted mt-2">No trait scored below 40%, so no probing questions are suggested.</div>';
+    return h + '</div>';
+  }
   async function showResults(id) {
     const d = (await Api.get('/admin/candidates/' + id + '/results')).data;
     let h = '<div class="card card-body"><h6>' + E(d.candidate.name) + ' – ' + d.candidate.state.replaceAll('_', ' ') + '</h6>';
@@ -210,6 +237,7 @@ $(async function () {
         (a ? ' <button class="btn btn-outline-secondary btn-sm ms-2" data-retake="' + d.candidate.id + ':' + s.test_id + '">Allow retake</button>' : ' <button class="btn btn-outline-secondary btn-sm ms-2" data-unassign="' + d.candidate.id + ':' + s.test_id + '">Unassign</button>');
       if (!a) { h += '<div class="text-muted">Not attempted</div>'; return; }
       h += '<div>Status: <b>' + a.status + '</b> (' + E(a.submit_reason || '') + ') · Score: <b>' + (a.score ?? '-') + '/' + (a.max_score ?? '-') + '</b> · ' + (a.passed ? '<span class="text-success">cleared</span>' : '<span class="text-danger">not cleared</span>') + ' · started ' + fmt(a.started_at) + ' · IP ' + E(a.start_ip) + '</div>';
+      if (s.stage === 'behaviour') h += personalityHtml(a.personality);
       h += '<details class="mt-1"><summary>Per-question breakdown</summary><table class="table table-sm"><tr><th>Question</th><th>Answer</th><th>Score</th></tr>' +
         a.breakdown.map(b => '<tr><td>' + E(b.body.slice(0, 80)) + '</td><td>' + E(b.selected_text ?? (b.type === 'coding' ? '(see submissions)' : '—')) + '</td><td>' + (b.is_correct === true ? '✔ ' : b.is_correct === false ? '✘ ' : '') + (b.score ?? '') + '</td></tr>').join('') + '</table></details>';
       if (a.code_submissions.length) h += '<details><summary>Code submissions (' + a.code_submissions.length + ')</summary>' + a.code_submissions.map(c => '<div class="small mt-1"><b>' + c.kind + '</b> ' + c.language + ' · ' + E(c.status) + ' · ' + c.passed_cases + '/' + c.total_cases + ' · ' + fmt(c.created_at) + '<pre class="code-out">' + E(c.source_code) + '</pre></div>').join('') + '</details>';

@@ -8,7 +8,7 @@ $(async function () {
   const TYPE_LABEL = { aptitude: 'MCQ', behaviour: 'Likert', coding: 'Coding' };
   const TEMPLATE = {
     aptitude: ['aptitude_mcq.csv', 'CSV columns: type, body, options (separate with |), correct (1-based number of the right option), marks, difficulty.'],
-    behaviour: ['behaviour_likert.csv', 'CSV columns: type, body, options (separate with |), scores (same count, separate with |). Reverse-scored statements list their scores in reverse.'],
+    behaviour: ['behaviour_likert.csv', 'CSV columns: type, body, options (separate with |), scores (same count, separate with |), trait (optional, e.g. conscientiousness). Reverse-scored statements list their scores in reverse. Traits drive the personality profile in the candidate details.'],
     coding: ['coding.json', 'JSON list of coding problems. Each needs test_cases with at least one sample and one hidden case.'] };
   const PRESETS = {
     agree5: [['Strongly disagree', 1], ['Disagree', 2], ['Neutral', 3], ['Agree', 4], ['Strongly agree', 5]],
@@ -18,6 +18,7 @@ $(async function () {
   };
   const PRESET_NAMES = { agree5: '5-point agreement', freq5: '5-point frequency', forced4: '4-point forced choice', agree7: '7-point agreement', custom: 'Custom scale' };
   const LETTERS = 'ABCDEFGH';
+  const TRAITS = ['conscientiousness', 'emotional stability', 'agreeableness', 'extraversion', 'openness', 'teamwork', 'leadership', 'communication', 'adaptability', 'integrity', 'initiative', 'resilience', 'desirability'];
   let tests = [], cur = null, summary = null, qs = [], editing = null, pendingFile = null, curStep = 'settings', settingsDirty = false;
   const listFilter = { q: '', status: 'all', stage: '' };
   const isMcq = () => cur.stage === 'aptitude', isLikert = () => cur.stage === 'behaviour', isCode = () => cur.stage === 'coding';
@@ -140,7 +141,7 @@ $(async function () {
   function qPreviewText(q) { return q.body.length > 150 ? q.body.slice(0, 150) + '…' : q.body; }
   function qMeta(q) {
     if (q.type === 'coding') { const hid = q.test_cases.filter(c => !c.is_sample).length; return q.test_cases.length + ' test cases (' + hid + ' hidden) · ' + q.marks + ' marks'; }
-    if (q.type === 'likert') return q.options.length + '-point scale · scores ' + Math.min(...q.options.map(o => o.score)) + '–' + Math.max(...q.options.map(o => o.score));
+    if (q.type === 'likert') return (q.trait ? '<b class="tc-trait">' + E(q.trait) + '</b> · ' : '') + q.options.length + '-point scale · scores ' + Math.min(...q.options.map(o => o.score)) + '–' + Math.max(...q.options.map(o => o.score));
     return q.options.length + ' options · ' + q.marks + ' mark' + (q.marks === 1 ? '' : 's');
   }
   function filteredQs() { const t = $('#q-search').val().toLowerCase(), d = $('#q-diff').val(); return qs.filter(q => (!t || q.body.toLowerCase().includes(t)) && (!d || q.difficulty === d)); }
@@ -169,7 +170,7 @@ $(async function () {
     await reloadQs();
   });
   async function reloadQs() { qs = (await Api.get('/admin/tests/' + cur.id + '/questions')).data; await refreshSummary(); renderQuestions(); }
-  const toPayload = q => ({ type: q.type, body: q.body, difficulty: q.difficulty, marks: q.marks, correct_option: q.correct_option, options: q.options && q.options.map(o => o.score !== undefined ? { text: o.text, score: o.score } : { text: o.text }),
+  const toPayload = q => ({ type: q.type, body: q.body, difficulty: q.difficulty, trait: q.trait, marks: q.marks, correct_option: q.correct_option, options: q.options && q.options.map(o => o.score !== undefined ? { text: o.text, score: o.score } : { text: o.text }),
     input_format: q.input_format, output_format: q.output_format, function_signature: q.function_signature, time_limit_ms: q.time_limit_ms, memory_limit_kb: q.memory_limit_kb,
     test_cases: (q.test_cases || []).map(c => ({ input: c.input, expected_output: c.expected_output, is_sample: c.is_sample })) });
   $('#q-add').on('click', () => openDrawer(null)); $('#q-import').on('click', openImport);
@@ -190,6 +191,7 @@ $(async function () {
   function buildForm(q) {
     const lbl = isCode() ? 'Problem statement' : isLikert() ? 'Statement' : 'Question';
     let h = '<div class="mb-3"><label>' + lbl + '</label><textarea class="form-control" id="qd-body" rows="' + (isCode() ? 5 : 3) + '" placeholder="' + (isLikert() ? 'e.g. I stay calm when a deadline moves up.' : isCode() ? 'Describe the problem, constraints and what to print.' : 'Write the question…') + '"></textarea></div>';
+    if (isLikert()) h += '<div class="mb-3"><label>Trait measured <span class="tc-unit">groups statements into the candidate\'s personality profile</span></label><input class="form-control" id="qd-trait" list="qd-traits" maxlength="40" placeholder="e.g. conscientiousness (optional)" autocomplete="off"><datalist id="qd-traits">' + TRAITS.map(t => '<option value="' + t + '">').join('') + [...new Set(qs.map(x => x.trait).filter(Boolean))].filter(t => !TRAITS.includes(t)).map(t => '<option value="' + E(t) + '">').join('') + '</datalist><div class="form-text">Use <b>desirability</b> for statements nobody can honestly agree with (e.g. "I have never been late"). They flag answering-to-look-good and are kept out of the profile.</div></div>';
     if (isLikert()) h += '<div class="row g-2 mb-2"><div class="col-8"><label>Scale preset</label><select class="form-select" id="qd-preset">' + Object.entries(PRESET_NAMES).map(([k, v]) => '<option value="' + k + '">' + v + '</option>').join('') + '</select></div><div class="col-4 d-flex align-items-end"><label class="tc-switch"><input type="checkbox" id="qd-rev"><span></span><em>Reverse-scored</em></label></div></div>';
     if (!isCode()) h += '<label>' + (isMcq() ? 'Options — select the correct one' : 'Response scale — each option carries a score') + '</label><div id="qd-opts"></div><button type="button" id="qd-addopt" class="btn btn-outline-secondary btn-sm mt-1 mb-3">＋ Add option</button>';
     else h += '<div class="row g-2 mb-3"><div class="col-6"><label>Input format</label><textarea class="form-control" id="qd-inf" rows="2"></textarea></div><div class="col-6"><label>Output format</label><textarea class="form-control" id="qd-outf" rows="2"></textarea></div>' +
@@ -208,7 +210,7 @@ $(async function () {
     editing = q ? q.id : null; buildForm(q);
     $('#qd-title').text((q ? 'Edit ' : 'Add ') + TYPE_LABEL[cur.stage] + ' question'); $('#qd-sub').text(cur.title); $('#qd-more').toggleClass('d-none', !!q); $('#qd-err').text('');
     if (q) {
-      $('#qd-body').val(q.body); $('#qd-marks').val(q.marks); $('#qd-diff button').removeClass('on').filter('[data-d=' + q.difficulty + ']').addClass('on');
+      $('#qd-body').val(q.body); $('#qd-trait').val(q.trait || ''); $('#qd-marks').val(q.marks); $('#qd-diff button').removeClass('on').filter('[data-d=' + q.difficulty + ']').addClass('on');
       if (isCode()) { $('#qd-inf').val(q.input_format || ''); $('#qd-outf').val(q.output_format || ''); $('#qd-sig').val(q.function_signature || ''); $('#qd-tl').val(q.time_limit_ms); $('#qd-ml').val(q.memory_limit_kb); q.test_cases.forEach(c => $('#qd-cases').append(caseRow(c))); }
       else { q.options.forEach((o, i) => $('#qd-opts').append(optRow(o.text, o.score, i === q.correct_option))); if (isLikert()) $('#qd-preset').val('custom'); }
     } else {
@@ -220,7 +222,7 @@ $(async function () {
   }
   function collect(strict) {
     const p = { type: TYPE[cur.stage], body: $('#qd-body').val().trim(), difficulty: $('#qd-diff .on').data('d') || 'medium' }, errs = [];
-    if (!isLikert()) p.marks = +$('#qd-marks').val() || 1;
+    if (!isLikert()) p.marks = +$('#qd-marks').val() || 1; else p.trait = $('#qd-trait').val().trim() || null;
     if (!p.body) errs.push('Write the ' + (isLikert() ? 'statement' : 'question') + ' text.');
     if (isCode()) {
       Object.assign(p, { input_format: $('#qd-inf').val() || null, output_format: $('#qd-outf').val() || null, function_signature: $('#qd-sig').val() || null, time_limit_ms: +$('#qd-tl').val(), memory_limit_kb: +$('#qd-ml').val() });

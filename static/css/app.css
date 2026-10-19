@@ -380,3 +380,26 @@ body.pg-dragging { user-select: none !important; cursor: col-resize; } body.pg-d
 
 .pw-meter { display: flex; align-items: center; gap: .7rem; height: 1.2rem; } .pw-meter i { display: block; height: 4px; width: 0; background: #ccc; transition: width .15s, background .15s; flex: none; max-width: 70%; } .pw-meter { background: linear-gradient(#ececec, #ececec) left center / 70% 4px no-repeat; }
 .acc-never { color: var(--accent); font-weight: 600; }
+
+/* ===== Personality profile (admin candidate details) ===== */
+.pp { border: 1px solid var(--hair); padding: 1rem 1.2rem; }
+.pp-grid { display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: center; margin-top: .75rem; }
+.pp-grid > div:first-child { flex: 0 0 280px; max-width: 100%; }
+.pp-bars { flex: 1 1 320px; min-width: 0; }
+.radar { width: 100%; height: auto; display: block; }
+.rd-grid { fill: none; stroke: var(--hair); stroke-width: 1; }
+.rd-area { fill: var(--accent); fill-opacity: .18; stroke: var(--accent); stroke-width: 2; }
+.rd-dot { fill: var(--accent); }
+.rd-lab { font-size: 9.5px; fill: var(--ink); font-weight: 600; }
+.pp-row { display: grid; grid-template-columns: minmax(7rem, 11rem) 1fr 5.5rem; gap: .75rem; align-items: center; padding: .35rem 0; }
+.pp-name { font-weight: 600; font-size: .85rem; } .pp-n { display: block; font-size: .68rem; font-weight: 400; color: var(--mute); }
+.pp-track { position: relative; height: .7rem; background: var(--hair); }
+.pp-fill { position: absolute; inset: 0 auto 0 0; background: var(--ink); } .pp-fill.low { background: var(--accent); } .pp-fill.none { background: transparent; }
+.pp-mark { position: absolute; top: -3px; bottom: -3px; width: 1px; background: var(--ink); opacity: .45; }
+.pp-val { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+.pp-key { margin-top: .5rem; }
+.pp-flags { margin-top: .9rem; border-left: 4px solid var(--accent); padding-left: 1rem; }
+.pp-flag { display: flex; flex-direction: column; margin-bottom: .4rem; } .pp-flag span { font-size: .82rem; color: var(--mute); }
+.pp-prompt { margin-top: .6rem; } .pp-prompt ul { margin: .25rem 0 0; padding-left: 1.2rem; font-size: .88rem; }
+.tc-trait { text-transform: capitalize; color: var(--ink); }
+@media (max-width: 700px) { .pp-row { grid-template-columns: 1fr 5rem; } .pp-track { grid-column: 1 / -1; order: 3; } }

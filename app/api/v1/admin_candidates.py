@@ -17,7 +17,7 @@ from app.models import (RefreshToken, College, Answer, Attempt, AuditLog, Candid
                         Question, Role, STAGE_ORDER, Test, User, Violation)
 from app.schemas.schemas import AssignIn, BulkIds, CandidateIn, CandidateUpdate, InviteIn
 from app.services import attempts as svc
-from app.services import csvio
+from app.services import csvio, personality
 from app.services.audit import audit
 
 router = APIRouter(prefix="/admin", tags=["admin-candidates"])
@@ -320,7 +320,8 @@ def candidate_results(cid: int, _: User = Depends(require_admin), db: Session = 
                                       "memory_kb": s.memory_kb, "created_at": s.created_at,
                                       "source_code": s.source_code} for s in subs],
                 "violations": [{"type": v.type, "at": v.occurred_at, "counted": v.counted,
-                                "meta": v.client_meta} for v in a.violations]}
+                                "meta": v.client_meta} for v in a.violations],
+                "personality": personality.profile(db, a, ct.test_id) if ct.stage == "behaviour" else None}
         stages.append(entry)
     return ok({"candidate": ser_candidate(c), "stages": stages})
 

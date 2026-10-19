@@ -77,12 +77,19 @@ class QuestionIn(BaseModel):
     correct_option: int | None = None
     marks: float = Field(default=1, gt=0, le=1000)
     difficulty: str = Field(default="medium", pattern="^(easy|medium|hard)$")
+    trait: str | None = Field(default=None, max_length=40)
     input_format: str | None = None
     output_format: str | None = None
     function_signature: str | None = None
     time_limit_ms: int = Field(default=2000, ge=100, le=15000)
     memory_limit_kb: int = Field(default=128000, ge=16000, le=512000)
     test_cases: list[TestCaseIn] = []
+
+    @field_validator("trait")
+    @classmethod
+    def _trait(cls, v):
+        v = " ".join((v or "").lower().split())
+        return v or None
 
     @model_validator(mode="after")
     def _by_type(self):

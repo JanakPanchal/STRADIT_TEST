@@ -1,3 +1,5 @@
-type,body,options,scores
-likert,I stay calm when a deadline is moved up.,Strongly disagree|Disagree|Neutral|Agree|Strongly agree,1|2|3|4|5
-likert,I prefer to work alone rather than in a team.,Strongly disagree|Disagree|Neutral|Agree|Strongly agree,5|4|3|2|1
+type,body,options,scores,trait
+likert,I stay calm when a deadline is moved up.,Strongly disagree|Disagree|Neutral|Agree|Strongly agree,1|2|3|4|5,emotional stability
+likert,I prefer to work alone rather than in a team.,Strongly disagree|Disagree|Neutral|Agree|Strongly agree,5|4|3|2|1,teamwork
+likert,I always plan my work before I start.,Strongly disagree|Disagree|Neutral|Agree|Strongly agree,1|2|3|4|5,conscientiousness
+likert,I have never been late for anything in my life.,Strongly disagree|Disagree|Neutral|Agree|Strongly agree,1|2|3|4|5,desirability

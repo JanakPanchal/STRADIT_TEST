@@ -28,7 +28,7 @@ def ser_test(t: Test, qcount: int | None = None) -> dict:
 
 def ser_question(q: Question) -> dict:
     return {"id": q.id, "test_id": q.test_id, "type": q.type, "body": q.body, "options": q.options_json,
-            "correct_option": q.correct_option, "marks": q.marks, "difficulty": q.difficulty,
+            "correct_option": q.correct_option, "marks": q.marks, "difficulty": q.difficulty, "trait": q.trait,
             "input_format": q.input_format, "output_format": q.output_format,
             "function_signature": q.function_signature, "time_limit_ms": q.time_limit_ms,
             "memory_limit_kb": q.memory_limit_kb,
@@ -58,7 +58,8 @@ def question_fields(test: Test, body: QuestionIn) -> tuple[dict, list[TestCase]]
         if body.options else None
     fields = dict(type=body.type.value, body=body.body, options_json=opts,
                   correct_option=body.correct_option if body.type == QType.mcq else None,
-                  marks=body.marks, difficulty=body.difficulty, input_format=body.input_format,
+                  marks=body.marks, difficulty=body.difficulty,
+                  trait=body.trait if body.type == QType.likert else None, input_format=body.input_format,
                   output_format=body.output_format, function_signature=body.function_signature,
                   time_limit_ms=body.time_limit_ms, memory_limit_kb=body.memory_limit_kb)
     cases = [TestCase(input=c.input, expected_output=c.expected_output, is_sample=c.is_sample) for c in body.test_cases]
@@ -214,6 +215,8 @@ def _csv_row_to_question(row: dict) -> dict:
     d: dict = {"type": qtype, "body": row.get("body", ""), "difficulty": row.get("difficulty") or "medium"}
     if row.get("marks"):
         d["marks"] = float(row["marks"])
+    if row.get("trait"):
+        d["trait"] = row["trait"]
     if qtype == "likert":
         scores = [float(x) for x in (row.get("scores") or "").split("|") if x.strip()]
         if len(scores) != len(texts):
@@ -229,7 +232,7 @@ def _csv_row_to_question(row: dict) -> dict:
 async def import_questions(test_id: int, request: Request, file: UploadFile = File(...),
                            dry_run: bool = Query(False), admin: User = Depends(require_admin),
                            db: Session = Depends(get_db)):
-    """CSV (columns: type,body,options,correct,marks,difficulty,scores; options '|'-separated,
+    """CSV (columns: type,body,options,correct,marks,difficulty,scores,trait; options '|'-separated,
     correct is 1-based) or JSON (list of question objects; the only way to import coding questions).
     All-or-nothing: any invalid row rejects the whole file with per-row errors."""
     t = _get_test(db, test_id)
