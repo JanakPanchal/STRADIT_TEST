@@ -10,7 +10,7 @@ def likert(trait, body, options=SCALE):
     return {"type": "likert", "body": body, "options": options, "trait": trait}
 
 
-def beh_attempt(client, admin, questions, picks, cohort_email="c1@x.com"):
+def beh_attempt(client, admin, questions, picks, cohort_email="c1@x.com", full=False):
     """Candidate clears aptitude, then answers the behaviour test; picks maps question body -> option text (or None)."""
     apt = make_test(client, admin, "aptitude", cutoff=1)
     beh = make_test(client, admin, "behaviour", cutoff=0)
@@ -31,7 +31,7 @@ def beh_attempt(client, admin, questions, picks, cohort_email="c1@x.com"):
             client.put(f"{API}/attempts/{d['attempt_id']}/answers/{q['question_id']}", headers=h, json={"selected": q["options"].index(pick)})
     client.post(f"{API}/attempts/{d['attempt_id']}/submit", headers=h)
     res = client.get(f"{API}/admin/candidates/{cid}/results", headers=admin).json()["data"]
-    return res["stages"][1]["attempt"]["personality"]
+    return res if full else res["stages"][1]["attempt"]["personality"]
 
 
 def test_trait_is_normalised_and_only_kept_on_likert(client, admin):

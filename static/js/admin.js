@@ -229,6 +229,25 @@ $(async function () {
     else h += '<div class="small text-muted mt-2">No trait scored below 40%, so no probing questions are suggested.</div>';
     return h + '</div>';
   }
+  // whole-person insights: team fit, key features, thinking and work style (from d.insights)
+  function insightsHtml(ins) {
+    if (!ins) return '';
+    const card = x => '<div class="in-card"><b>' + E(x.title) + '</b><div>' + E(x.meaning) + '</div><div class="small text-muted">Based on: ' + E(x.evidence) + '</div></div>';
+    const ev = ins.evidence, CONF = { high: 'success', medium: 'warning', low: 'secondary' }[ins.confidence];
+    let h = '<div class="an-sub">Team fit &amp; working style <span class="badge text-bg-' + CONF + ' ms-2">' + ins.confidence + ' confidence</span></div>' +
+      '<div class="small text-muted mb-2">Evidence used: ' + [ev.traits ? ev.traits + ' personality trait' + (ev.traits === 1 ? '' : 's') : null, ev.aptitude ? 'aptitude behaviour' : null, ev.coding ? 'coding results' : null].filter(Boolean).join(', ') + '.</div>';
+    h += '<div class="in-roles">' + ins.roles.map(r => {
+      const top = ins.primary_roles.includes(r.role);
+      return '<div class="pp-row in-role' + (top ? ' in-top' : '') + '"><div class="pp-name">' + E(r.role) + (top ? ' ★' : '') + '<span class="pp-n">' + E(r.does) + '</span></div>' +
+        '<div class="pp-track"><i class="pp-fill ' + (r.score < 45 ? 'low' : '') + '" style="width:' + r.score + '%"></i><b class="pp-mark" style="left:' + 58 + '%"></b></div>' +
+        '<div class="pp-val">' + r.score + '%<span class="pp-n">' + ({ strong: 'strong fit', likely: 'likely fit', partial: 'partial', weak: 'weak' }[r.fit]) + ' · ' + r.based_on.length + '/' + r.of + ' inputs</span></div></div>';
+    }).join('') + '</div><div class="small text-muted">★ marks the likely team roles (58% and over). Marker at 58%. Roles are scored from the traits and results listed under each reading, not from a role test.</div>';
+    if (ins.features.length) h += '<div class="an-sub">Key features</div><div class="in-chips">' + ins.features.map(f => '<span class="in-chip ' + f.kind + '" title="' + E(f.trait) + ' ' + f.score + '%">' + E(f.text) + '</span>').join('') + '</div>';
+    if (ins.thinking.length) h += '<div class="an-sub">Thinking &amp; problem solving</div><div class="in-cards">' + ins.thinking.map(card).join('') + '</div>';
+    if (ins.work_style.length) h += '<div class="an-sub">Work style</div><div class="in-cards">' + ins.work_style.map(card).join('') + '</div>';
+    if (ins.suits.length) h += '<div class="an-sub">Likely to do well in</div><ul class="small">' + ins.suits.map(x => '<li><b>' + E(x.role) + ':</b> ' + E(x.text) + '</li>').join('') + '</ul>';
+    return h + '<div class="small text-muted mt-2">' + E(ins.note) + '</div>';
+  }
   // candidate analysis: scorecard matrix across stages, trait heat-map, strengths and watch-outs (all derived from the results payload)
   function analysisHtml(d) {
     const mins = a => a.submitted_at && a.started_at ? Math.max(1, Math.round((new Date(a.submitted_at + 'Z') - new Date(a.started_at + 'Z')) / 60000)) : null;
@@ -262,6 +281,7 @@ $(async function () {
         return '<tr><td><b>' + E(t.label) + '</b></td><td class="an-c an-' + (t.band || 'none') + '">' + (t.score === null ? '–' : Math.round(t.score) + '%') + '</td><td class="an-c an-' + (t.band || 'none') + '">' + lvl + '</td><td class="an-c">' + (t.percentile === null ? '–' : 'top ' + Math.max(1, 100 - t.percentile) + '%') + '</td><td class="small">' + (t.reading ? E(t.reading) : t.band === 'mid' ? 'Mid-range; no strong lean either way.' : '–') + '</td></tr>';
       }).join('') + '</tbody></table></div>';
     }
+    h += insightsHtml(d.insights);
     h += '<div class="an-two"><div><div class="an-sub an-g">Strengths</div>' + (good.length ? '<ul>' + good.map(x => '<li>' + E(x) + '</li>').join('') + '</ul>' : '<div class="small text-muted">None stand out yet.</div>') + '</div>' +
       '<div><div class="an-sub an-w">Watch-outs</div>' + (watch.length ? '<ul>' + watch.map(x => '<li>' + E(x) + '</li>').join('') + '</ul>' : '<div class="small text-muted">Nothing flagged.</div>') + '</div></div>' +
       '<div class="small text-muted">Generated from scores and signals to help an interviewer decide where to look. It is not a hiring decision.</div></div>';
@@ -291,6 +311,7 @@ $(async function () {
       t += row('<span class="text-capitalize">' + k + '</span> score', list.map(d => pctOf(att(d, k))), (v, i) => { const a = att(list[i], k); return v === null ? '<span class="text-muted">' + (a ? a.status : 'not attempted') + '</span>' : v + '%<div class="small ' + (a.passed ? 'text-success' : 'text-danger') + '">' + (a.passed ? 'cleared' : 'not cleared') + '</div>'; }, 'max');
     });
     t += row('Proctoring warnings', list.map(d => d.stages.reduce((n, s) => n + (s.attempt ? s.attempt.violation_count : 0), 0)), v => v ? '<span class="text-danger">' + v + '</span>' : '0', 'min');
+    t += '<tr><th class="cmp-rl">Likely team role</th>' + list.map(d => '<td class="an-c">' + (d.insights && d.insights.primary_roles.length ? E(d.insights.primary_roles.join(', ')) : '<span class="text-muted">–</span>') + '</td>').join('') + '</tr>';
     const prs = list.map(d => (att(d, 'behaviour') || {}).personality);
     if (prs.some(Boolean)) {
       const REL = { ok: 'Consistent', caution: 'Caution', low: 'Low confidence' };
@@ -323,6 +344,9 @@ $(async function () {
       rows.push([k + ' percent'].concat(list.map(d => pctOf(att(d, k)))));
       rows.push([k + ' result'].concat(list.map(d => { const a = att(d, k); return !a ? 'not attempted' : a.status !== 'submitted' ? a.status : a.passed ? 'cleared' : 'not cleared'; })));
     });
+    rows.push(['Likely team roles'].concat(list.map(d => d.insights ? d.insights.primary_roles.join('; ') : '')));
+    rows.push(['Thinking style'].concat(list.map(d => d.insights ? d.insights.thinking.map(x => x.title).join('; ') : '')));
+    rows.push(['Work style'].concat(list.map(d => d.insights ? d.insights.work_style.map(x => x.title).join('; ') : '')));
     rows.push(['Proctoring warnings'].concat(list.map(d => d.stages.reduce((n, x) => n + (x.attempt ? x.attempt.violation_count : 0), 0))));
     const prs = list.map(d => (att(d, 'behaviour') || {}).personality);
     if (prs.some(Boolean)) {

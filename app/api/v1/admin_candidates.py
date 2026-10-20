@@ -17,7 +17,7 @@ from app.models import (RefreshToken, College, Answer, Attempt, AuditLog, Candid
                         Question, Role, STAGE_ORDER, Test, User, Violation)
 from app.schemas.schemas import AssignIn, BulkIds, CandidateIn, CandidateUpdate, InviteIn
 from app.services import attempts as svc
-from app.services import csvio, personality
+from app.services import csvio, insights, personality
 from app.services.audit import audit
 
 router = APIRouter(prefix="/admin", tags=["admin-candidates"])
@@ -323,7 +323,9 @@ def candidate_results(cid: int, _: User = Depends(require_admin), db: Session = 
                                 "meta": v.client_meta} for v in a.violations],
                 "personality": personality.profile(db, a, ct.test_id) if ct.stage == "behaviour" else None}
         stages.append(entry)
-    return ok({"candidate": ser_candidate(c), "stages": stages})
+    beh = next((e["attempt"] for e in stages if e["stage"] == "behaviour" and e["attempt"]), None)
+    return ok({"candidate": ser_candidate(c), "stages": stages,
+               "insights": insights.build(db, cts, beh["personality"] if beh else None)})
 
 
 @router.get("/results/export")

@@ -421,3 +421,12 @@ body.pg-dragging { user-select: none !important; cursor: col-resize; } body.pg-d
 .cmp-dot { display: inline-block; width: .7rem; height: .7rem; margin-right: .4rem; }
 .cmp-best { outline: 2px solid var(--ink); outline-offset: -2px; }
 .cmp-legend { display: flex; flex-wrap: wrap; gap: .3rem 1rem; justify-content: center; font-size: .75rem; margin-top: .5rem; } .cmp-legend i { display: inline-block; width: .6rem; height: .6rem; margin-right: .35rem; }
+
+/* ===== Whole-person insights ===== */
+.in-role.in-top .pp-name { color: var(--accent); }
+.in-roles .pp-row { grid-template-columns: minmax(8rem, 18rem) 1fr 7.5rem; }
+.in-chips { display: flex; flex-wrap: wrap; gap: .4rem; }
+.in-chip { border: 1.5px solid var(--ink); padding: .2rem .65rem; font-size: .8rem; font-weight: 600; }
+.in-chip.strength { background: rgba(31,122,77,.14); border-color: #1f7a4d; } .in-chip.watch { background: rgba(200,150,0,.16); border-color: #b8860b; }
+.in-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: .75rem; }
+.in-card { border: 1px solid var(--hair); border-left: 4px solid var(--ink); padding: .6rem .8rem; font-size: .88rem; }
