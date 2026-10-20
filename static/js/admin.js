@@ -122,7 +122,7 @@ $(async function () {
     $('#c-pager').html('<button class="btn btn-sm btn-outline-secondary" id="pp"' + (cPage <= 1 ? ' disabled' : '') + '>‹</button> Page ' + cPage + ' / ' + pages + ' · ' + r.meta.total + ' candidates <button class="btn btn-sm btn-outline-secondary" id="np"' + (cPage >= pages ? ' disabled' : '') + '>›</button>');
     $('#c-all').prop('checked', false); updSel();
   }
-  const updSel = () => { const n = $('.csel:checked').length; $('#c-sel').text(n ? n + ' selected' : ''); $('#c-bulkdel,#c-invite-sel').toggleClass('d-none', !n); };
+  const updSel = () => { const n = $('.csel:checked').length; $('#c-sel').text(n ? n + ' selected' : ''); $('#c-bulkdel,#c-invite-sel').toggleClass('d-none', !n); $('#c-compare').toggleClass('d-none', n < 2).prop('disabled', n > 5).attr('title', n > 5 ? 'Compare up to 5 at a time' : 'Compare side by side'); };
   $('#c-body').on('change', '.csel', updSel); $('#c-all').on('change', function () { $('.csel').prop('checked', this.checked); updSel(); });
   $('#c-pager').on('click', '#pp', () => { cPage--; loadCands(); }).on('click', '#np', () => { cPage++; loadCands(); });
   $('#c-tiles').on('click', '.tile', function () { F.outcome = String($(this).data('o')); cPage = 1; loadCands(); });
@@ -267,6 +267,53 @@ $(async function () {
       '<div class="small text-muted">Generated from scores and signals to help an interviewer decide where to look. It is not a hiring decision.</div></div>';
     return h;
   }
+  // side-by-side comparison of 2-5 candidates: stage results, warnings, reliability and a trait matrix with an overlaid radar
+  const CMP_COLORS = ['#111111', '#e30613', '#1f6fb5', '#2a9d8f', '#b8860b'];
+  function radarMulti(labels, series) {
+    const n = labels.length, R = 78, C = 110, pt = (i, v) => { const a = -Math.PI / 2 + i * 2 * Math.PI / n; return [C + Math.cos(a) * R * v / 100, C + Math.sin(a) * R * v / 100]; };
+    const poly = vals => vals.map((v, i) => pt(i, v).map(x => x.toFixed(1)).join(',')).join(' ');
+    let g = [25, 50, 75, 100].map(r => '<polygon points="' + poly(labels.map(() => r)) + '" class="rd-grid"/>').join('') + labels.map((_, i) => { const [x, y] = pt(i, 100); return '<line x1="' + C + '" y1="' + C + '" x2="' + x.toFixed(1) + '" y2="' + y.toFixed(1) + '" class="rd-grid"/>'; }).join('');
+    g += series.map(s => '<polygon points="' + poly(s.values) + '" fill="' + s.color + '" fill-opacity=".08" stroke="' + s.color + '" stroke-width="2"/>').join('');
+    g += labels.map((l, i) => { const [x, y] = pt(i, 122), a = x < C - 8 ? 'end' : x > C + 8 ? 'start' : 'middle'; return '<text x="' + x.toFixed(1) + '" y="' + (y + 3).toFixed(1) + '" text-anchor="' + a + '" class="rd-lab">' + E(l.length > 16 ? l.slice(0, 15) + '…' : l) + '</text>'; }).join('');
+    return '<svg viewBox="-30 -4 280 228" class="radar" role="img" aria-label="Trait comparison radar chart">' + g + '</svg>';
+  }
+  function compareHtml(list) {
+    const st = (d, k) => d.stages.find(s => s.stage === k) || {}, att = (d, k) => st(d, k).attempt;
+    const pctOf = a => a && a.max_score ? Math.round(a.score / a.max_score * 100) : null;
+    const heads = list.map((d, i) => '<th><span class="cmp-dot" style="background:' + CMP_COLORS[i] + '"></span><b>' + E(d.candidate.name) + '</b><div class="small text-muted fw-normal">' + E(d.candidate.email) + '</div>' +
+      '<div class="small text-muted fw-normal">' + E([d.candidate.college, d.candidate.branch, d.candidate.batch].filter(Boolean).join(' · ')) + '</div><button class="btn btn-sm btn-outline-primary mt-1" data-res="' + d.candidate.id + '">Details</button></th>').join('');
+    // `best`: 'max' | 'min' | null marks the winning cell(s) of a row
+    const row = (label, vals, cellFn, best) => { const nums = vals.map(v => (typeof v === 'number' ? v : null)), ok = nums.filter(x => x !== null), top = !best || ok.length < 2 ? null : best === 'max' ? Math.max(...ok) : Math.min(...ok);
+      return '<tr><th class="cmp-rl">' + label + '</th>' + vals.map((v, i) => '<td class="an-c' + (top !== null && nums[i] === top && new Set(ok).size > 1 ? ' cmp-best' : '') + '">' + cellFn(v, i) + '</td>').join('') + '</tr>'; };
+    let t = '<tr><th class="cmp-rl"></th>' + heads + '</tr>';
+    t += row('Overall', list.map(d => d.candidate.state.replaceAll('_', ' ').toLowerCase()), v => '<span class="text-capitalize">' + E(v) + '</span>');
+    ['aptitude', 'behaviour', 'coding'].forEach(k => {
+      t += row('<span class="text-capitalize">' + k + '</span> score', list.map(d => pctOf(att(d, k))), (v, i) => { const a = att(list[i], k); return v === null ? '<span class="text-muted">' + (a ? a.status : 'not attempted') + '</span>' : v + '%<div class="small ' + (a.passed ? 'text-success' : 'text-danger') + '">' + (a.passed ? 'cleared' : 'not cleared') + '</div>'; }, 'max');
+    });
+    t += row('Proctoring warnings', list.map(d => d.stages.reduce((n, s) => n + (s.attempt ? s.attempt.violation_count : 0), 0)), v => v ? '<span class="text-danger">' + v + '</span>' : '0', 'min');
+    const prs = list.map(d => (att(d, 'behaviour') || {}).personality);
+    if (prs.some(Boolean)) {
+      const REL = { ok: 'Consistent', caution: 'Caution', low: 'Low confidence' };
+      t += row('Answer reliability', prs.map(p => p ? p.reliability : null), v => v ? '<span class="badge text-bg-' + { ok: 'success', caution: 'warning', low: 'danger' }[v] + '">' + REL[v] + '</span>' : '–');
+      const names = [...new Set(prs.flatMap(p => p ? p.traits.map(x => x.trait) : []))].sort();
+      names.forEach(n => {
+        const cells = prs.map(p => p ? p.traits.find(x => x.trait === n) : null), lab = (cells.find(Boolean) || {}).label;
+        t += '<tr class="cmp-trait"><th class="cmp-rl">' + E(lab) + '</th>' + (() => { const sc = cells.map(c => c && c.score !== null ? c.score : null), ok = sc.filter(x => x !== null), top = ok.length > 1 ? Math.max(...ok) : null;
+          return cells.map((c, i) => '<td class="an-c an-' + ((c && c.band) || 'none') + (top !== null && sc[i] === top && new Set(ok).size > 1 ? ' cmp-best' : '') + '">' + (c && c.score !== null ? Math.round(c.score) + '%' : '–') + '</td>').join(''); })() + '</tr>';
+      });
+      const common = names.filter(n => prs.every(p => p && p.traits.some(x => x.trait === n && x.score !== null)));
+      var radarHtml = common.length >= 3 ? '<div class="cmp-radar">' + radarMulti(common.map(n => prs[0].traits.find(x => x.trait === n).label), prs.map((p, i) => ({ color: CMP_COLORS[i], values: common.map(n => p.traits.find(x => x.trait === n).score) }))) + '<div class="small text-muted text-center">Traits all selected candidates were scored on</div></div>' : '';
+    }
+    return '<div class="an"><div class="d-flex justify-content-between align-items-center"><h6 class="mb-2">Comparing ' + list.length + ' candidates</h6><button class="btn btn-sm btn-outline-secondary" id="cmp-close">Close</button></div>' +
+      '<div class="cmp-wrap">' + (radarHtml ? '<div class="cmp-side">' + radarHtml + '<div class="cmp-legend">' + list.map((d, i) => '<span><i style="background:' + CMP_COLORS[i] + '"></i>' + E(d.candidate.name) + '</span>').join('') + '</div></div>' : '') +
+      '<div class="table-responsive cmp-main"><table class="table table-sm an-table cmp-table">' + t + '</table></div></div>' +
+      '<div class="small text-muted">The outlined cell in a row is the highest score (fewest warnings for warnings). Use it to shortlist for interview, not to decide.</div></div>';
+  }
+  $('#c-compare').on('click', async function () {
+    const ids = $('.csel:checked').map((_, el) => +el.value).get(); if (ids.length < 2 || ids.length > 5) return;
+    try { const list = await Promise.all(ids.map(async id => (await Api.get('/admin/candidates/' + id + '/results')).data)); $('#c-detail').html(compareHtml(list)); $('#c-detail')[0].scrollIntoView({ behavior: 'smooth' }); } catch (e) {}
+  });
+  $('#c-detail').on('click', '#cmp-close', () => $('#c-detail').empty()).on('click', 'button[data-res]', async function () { await showResults($(this).data('res')); $('#c-detail')[0].scrollIntoView({ behavior: 'smooth' }); });
   async function showResults(id) {
     const d = (await Api.get('/admin/candidates/' + id + '/results')).data;
     let h = '<div class="card card-body"><h6>' + E(d.candidate.name) + ' – ' + d.candidate.state.replaceAll('_', ' ') + '</h6>';

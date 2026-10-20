@@ -412,3 +412,12 @@ body.pg-dragging { user-select: none !important; cursor: col-resize; } body.pg-d
 .an-sub { margin: 1rem 0 .4rem; font-size: .7rem; text-transform: uppercase; letter-spacing: .1em; font-weight: 700; color: var(--mute); }
 .an-g { color: #1f7a4d; } .an-w { color: var(--accent); }
 .an-two { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; } .an-two ul { padding-left: 1.1rem; margin: 0; font-size: .88rem; } .an-two li { margin-bottom: .25rem; }
+
+/* ===== Candidate comparison ===== */
+.cmp-wrap { display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: flex-start; }
+.cmp-side { flex: 0 0 280px; max-width: 100%; } .cmp-main { flex: 1 1 520px; min-width: 0; }
+.cmp-table th { vertical-align: top; font-size: .85rem; letter-spacing: 0; text-transform: none; color: var(--ink); white-space: normal; min-width: 10rem; }
+.cmp-table th.cmp-rl { font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--mute); min-width: 7rem; position: sticky; left: 0; background: var(--paper); }
+.cmp-dot { display: inline-block; width: .7rem; height: .7rem; margin-right: .4rem; }
+.cmp-best { outline: 2px solid var(--ink); outline-offset: -2px; }
+.cmp-legend { display: flex; flex-wrap: wrap; gap: .3rem 1rem; justify-content: center; font-size: .75rem; margin-top: .5rem; } .cmp-legend i { display: inline-block; width: .6rem; height: .6rem; margin-right: .35rem; }
