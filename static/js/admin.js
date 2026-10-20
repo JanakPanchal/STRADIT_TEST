@@ -304,14 +304,46 @@ $(async function () {
       const common = names.filter(n => prs.every(p => p && p.traits.some(x => x.trait === n && x.score !== null)));
       var radarHtml = common.length >= 3 ? '<div class="cmp-radar">' + radarMulti(common.map(n => prs[0].traits.find(x => x.trait === n).label), prs.map((p, i) => ({ color: CMP_COLORS[i], values: common.map(n => p.traits.find(x => x.trait === n).score) }))) + '<div class="small text-muted text-center">Traits all selected candidates were scored on</div></div>' : '';
     }
-    return '<div class="an"><div class="d-flex justify-content-between align-items-center"><h6 class="mb-2">Comparing ' + list.length + ' candidates</h6><button class="btn btn-sm btn-outline-secondary" id="cmp-close">Close</button></div>' +
+    return '<div class="an"><div class="d-flex justify-content-between align-items-center"><h6 class="mb-2">Comparing ' + list.length + ' candidates</h6><span><button class="btn btn-sm btn-outline-primary" id="cmp-csv">⇩ Export CSV</button> <button class="btn btn-sm btn-outline-secondary" id="cmp-close">Close</button></span></div>' +
       '<div class="cmp-wrap">' + (radarHtml ? '<div class="cmp-side">' + radarHtml + '<div class="cmp-legend">' + list.map((d, i) => '<span><i style="background:' + CMP_COLORS[i] + '"></i>' + E(d.candidate.name) + '</span>').join('') + '</div></div>' : '') +
       '<div class="table-responsive cmp-main"><table class="table table-sm an-table cmp-table">' + t + '</table></div></div>' +
       '<div class="small text-muted">The outlined cell in a row is the highest score (fewest warnings for warnings). Use it to shortlist for interview, not to decide.</div></div>';
   }
+  // CSV of the comparison: one row per measure, one column per candidate (the same layout as the table)
+  function compareCsv(list) {
+    const att = (d, k) => (d.stages.find(x => x.stage === k) || {}).attempt, pctOf = a => a && a.max_score ? Math.round(a.score / a.max_score * 100) + '%' : '';
+    const cell = v => { let t = v === null || v === undefined ? '' : String(v); if (/^[=+\-@\t\r]/.test(t)) t = "'" + t;   // spreadsheet formula injection
+      return /[",\n\r]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t; };
+    const rows = [['Measure'].concat(list.map(d => d.candidate.name)),
+      ['Email'].concat(list.map(d => d.candidate.email)), ['College'].concat(list.map(d => d.candidate.college || '')),
+      ['Branch'].concat(list.map(d => d.candidate.branch || '')), ['Batch'].concat(list.map(d => d.candidate.batch || '')),
+      ['Overall'].concat(list.map(d => d.candidate.state.replaceAll('_', ' ').toLowerCase()))];
+    ['aptitude', 'behaviour', 'coding'].forEach(k => {
+      rows.push([k + ' score'].concat(list.map(d => { const a = att(d, k); return a && a.score !== null ? a.score + ' / ' + a.max_score : ''; })));
+      rows.push([k + ' percent'].concat(list.map(d => pctOf(att(d, k)))));
+      rows.push([k + ' result'].concat(list.map(d => { const a = att(d, k); return !a ? 'not attempted' : a.status !== 'submitted' ? a.status : a.passed ? 'cleared' : 'not cleared'; })));
+    });
+    rows.push(['Proctoring warnings'].concat(list.map(d => d.stages.reduce((n, x) => n + (x.attempt ? x.attempt.violation_count : 0), 0))));
+    const prs = list.map(d => (att(d, 'behaviour') || {}).personality);
+    if (prs.some(Boolean)) {
+      rows.push(['Answer reliability'].concat(prs.map(p => p ? p.reliability : '')));
+      rows.push(['Reliability flags'].concat(prs.map(p => p ? p.flags.map(f => f.label).join('; ') : '')));
+      [...new Set(prs.flatMap(p => p ? p.traits.map(x => x.trait) : []))].sort().forEach(n => {
+        const cs = prs.map(p => p ? p.traits.find(x => x.trait === n) : null), lab = (cs.find(Boolean) || {}).label;
+        rows.push(['Trait: ' + lab + ' (%)'].concat(cs.map(c => c && c.score !== null ? Math.round(c.score) : '')));
+        rows.push(['Trait: ' + lab + ' (level)'].concat(cs.map(c => c && c.band ? c.band : '')));
+      });
+    }
+    return '﻿' + rows.map(r => r.map(cell).join(',')).join('\r\n') + '\r\n';
+  }
+  let cmpList = [];
+  $('#c-detail').on('click', '#cmp-csv', () => {
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([compareCsv(cmpList)], { type: 'text/csv;charset=utf-8' }));
+    a.download = 'candidate_comparison.csv'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  });
   $('#c-compare').on('click', async function () {
     const ids = $('.csel:checked').map((_, el) => +el.value).get(); if (ids.length < 2 || ids.length > 5) return;
-    try { const list = await Promise.all(ids.map(async id => (await Api.get('/admin/candidates/' + id + '/results')).data)); $('#c-detail').html(compareHtml(list)); $('#c-detail')[0].scrollIntoView({ behavior: 'smooth' }); } catch (e) {}
+    try { const list = await Promise.all(ids.map(async id => (await Api.get('/admin/candidates/' + id + '/results')).data)); cmpList = list; $('#c-detail').html(compareHtml(list)); $('#c-detail')[0].scrollIntoView({ behavior: 'smooth' }); } catch (e) {}
   });
   $('#c-detail').on('click', '#cmp-close', () => $('#c-detail').empty()).on('click', 'button[data-res]', async function () { await showResults($(this).data('res')); $('#c-detail')[0].scrollIntoView({ behavior: 'smooth' }); });
   async function showResults(id) {
