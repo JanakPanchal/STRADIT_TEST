@@ -229,9 +229,48 @@ $(async function () {
     else h += '<div class="small text-muted mt-2">No trait scored below 40%, so no probing questions are suggested.</div>';
     return h + '</div>';
   }
+  // candidate analysis: scorecard matrix across stages, trait heat-map, strengths and watch-outs (all derived from the results payload)
+  function analysisHtml(d) {
+    const mins = a => a.submitted_at && a.started_at ? Math.max(1, Math.round((new Date(a.submitted_at + 'Z') - new Date(a.started_at + 'Z')) / 60000)) : null;
+    const pct = a => a.max_score ? Math.round(a.score / a.max_score * 100) : null;
+    const rows = d.stages.map(s => {
+      const a = s.attempt; if (!a) return '<tr><td class="text-capitalize"><b>' + s.stage + '</b></td><td colspan="6" class="text-muted">Not attempted</td></tr>';
+      const p = pct(a), cutPct = a.max_score ? Math.round(s.cutoff / a.max_score * 100) : null, m = mins(a), w = a.violation_count;
+      const cell = (txt, cls) => '<td class="an-c ' + (cls || '') + '">' + txt + '</td>';
+      return '<tr><td class="text-capitalize"><b>' + s.stage + '</b></td>' + cell(a.score !== null ? a.score + ' / ' + a.max_score : '–') +
+        cell(p === null ? '–' : p + '%', p === null ? '' : p >= (cutPct ?? 0) ? 'an-good' : 'an-bad') + cell(a.passed ? 'Cleared' : a.status === 'submitted' ? 'Not cleared' : a.status, a.passed ? 'an-good' : a.status === 'submitted' ? 'an-bad' : '') +
+        cell(a.score !== null && s.cutoff ? (a.score - s.cutoff >= 0 ? '+' : '') + (a.score - s.cutoff).toFixed(1).replace(/\.0$/, '') : '–') + cell(m === null ? '–' : m + ' min') + cell(w, w >= 3 ? 'an-bad' : w ? 'an-warn' : 'an-good') + '</tr>';
+    }).join('');
+    const good = [], watch = [];
+    d.stages.forEach(s => {
+      const a = s.attempt; if (!a) return;
+      const p = pct(a); if (p !== null && a.passed && p >= 80) good.push('Strong ' + s.stage + ' result (' + p + '%).');
+      if (a.status === 'submitted' && !a.passed) watch.push('Did not clear the ' + s.stage + ' cutoff.');
+      if (a.violation_count >= 3) watch.push(a.violation_count + ' proctoring warnings in ' + s.stage + '; review the log.');
+      else if (a.violation_count === 0 && a.status === 'submitted') good.push('No proctoring warnings in ' + s.stage + '.');
+      if (a.submit_reason && /violation/i.test(a.submit_reason)) watch.push('The ' + s.stage + ' test was auto-submitted for violations.');
+      const pr = a.personality; if (!pr) return;
+      pr.traits.filter(t => t.band === 'high').sort((x, y) => y.score - x.score).slice(0, 3).forEach(t => good.push(t.label + ' ' + Math.round(t.score) + '%: ' + (t.reading || 'high')));
+      pr.traits.filter(t => t.band === 'low').sort((x, y) => x.score - y.score).slice(0, 3).forEach(t => watch.push(t.label + ' ' + Math.round(t.score) + '%: ' + (t.reading || 'low')));
+      pr.flags.forEach(f => watch.push(f.label + '.'));
+    });
+    const beh = (d.stages.find(s => s.stage === 'behaviour') || {}).attempt, pr = beh && beh.personality;
+    let h = '<div class="an mt-3"><h6 class="mb-2">Candidate analysis</h6><div class="table-responsive"><table class="table table-sm an-table"><thead><tr><th>Stage</th><th>Score</th><th>Percent</th><th>Result</th><th>Vs cutoff</th><th>Time taken</th><th>Warnings</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+    if (pr && pr.traits.length) {
+      h += '<div class="an-sub">Personality matrix</div><div class="table-responsive"><table class="table table-sm an-table"><thead><tr><th>Trait</th><th>Score</th><th>Level</th><th>Rank</th><th>What it suggests</th></tr></thead><tbody>' + pr.traits.map(t => {
+        const lvl = { low: 'Low', mid: 'Moderate', high: 'High' }[t.band] || '–';
+        return '<tr><td><b>' + E(t.label) + '</b></td><td class="an-c an-' + (t.band || 'none') + '">' + (t.score === null ? '–' : Math.round(t.score) + '%') + '</td><td class="an-c an-' + (t.band || 'none') + '">' + lvl + '</td><td class="an-c">' + (t.percentile === null ? '–' : 'top ' + Math.max(1, 100 - t.percentile) + '%') + '</td><td class="small">' + (t.reading ? E(t.reading) : t.band === 'mid' ? 'Mid-range; no strong lean either way.' : '–') + '</td></tr>';
+      }).join('') + '</tbody></table></div>';
+    }
+    h += '<div class="an-two"><div><div class="an-sub an-g">Strengths</div>' + (good.length ? '<ul>' + good.map(x => '<li>' + E(x) + '</li>').join('') + '</ul>' : '<div class="small text-muted">None stand out yet.</div>') + '</div>' +
+      '<div><div class="an-sub an-w">Watch-outs</div>' + (watch.length ? '<ul>' + watch.map(x => '<li>' + E(x) + '</li>').join('') + '</ul>' : '<div class="small text-muted">Nothing flagged.</div>') + '</div></div>' +
+      '<div class="small text-muted">Generated from scores and signals to help an interviewer decide where to look. It is not a hiring decision.</div></div>';
+    return h;
+  }
   async function showResults(id) {
     const d = (await Api.get('/admin/candidates/' + id + '/results')).data;
     let h = '<div class="card card-body"><h6>' + E(d.candidate.name) + ' – ' + d.candidate.state.replaceAll('_', ' ') + '</h6>';
+    h += analysisHtml(d);
     d.stages.forEach(s => {
       const a = s.attempt; h += '<hr><b class="text-capitalize">' + s.stage + '</b> – ' + E(s.title) + ' (cutoff ' + s.cutoff + ')' +
         (a ? ' <button class="btn btn-outline-secondary btn-sm ms-2" data-retake="' + d.candidate.id + ':' + s.test_id + '">Allow retake</button>' : ' <button class="btn btn-outline-secondary btn-sm ms-2" data-unassign="' + d.candidate.id + ':' + s.test_id + '">Unassign</button>');

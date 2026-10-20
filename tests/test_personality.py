@@ -65,6 +65,7 @@ def test_scores_scale_reverse_items_and_prompts_for_low_trait(client, admin):
     by = {t["trait"]: t for t in p["traits"]}
     assert by["conscientiousness"]["score"] == 100 and by["conscientiousness"]["band"] == "high"
     assert by["teamwork"]["score"] == 25 and by["teamwork"]["band"] == "low"
+    assert by["teamwork"]["reading"].startswith("Prefers working alone") and by["conscientiousness"]["reading"].startswith("Organised")
     assert by["teamwork"]["percentile"] is None          # cohort of one: too small to rank
     assert [x["trait"] for x in p["prompts"]] == ["Teamwork"] and p["prompts"][0]["questions"]
     assert p["flags"] == [] and p["reliability"] == "ok"

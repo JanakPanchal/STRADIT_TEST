@@ -403,3 +403,12 @@ body.pg-dragging { user-select: none !important; cursor: col-resize; } body.pg-d
 .pp-prompt { margin-top: .6rem; } .pp-prompt ul { margin: .25rem 0 0; padding-left: 1.2rem; font-size: .88rem; }
 .tc-trait { text-transform: capitalize; color: var(--ink); }
 @media (max-width: 700px) { .pp-row { grid-template-columns: 1fr 5rem; } .pp-track { grid-column: 1 / -1; order: 3; } }
+
+/* ===== Candidate analysis matrix ===== */
+.an { border: 1px solid var(--hair); padding: 1rem 1.2rem; margin: .5rem 0 1rem; }
+.an-table th { font-size: .66rem; text-transform: uppercase; letter-spacing: .08em; color: var(--mute); font-weight: 700; white-space: nowrap; }
+.an-table td { vertical-align: middle; } .an-c { text-align: center; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.an-good, .an-high { background: rgba(31,122,77,.14); } .an-bad, .an-low { background: rgba(200,50,40,.14); } .an-warn, .an-mid { background: rgba(200,150,0,.16); }
+.an-sub { margin: 1rem 0 .4rem; font-size: .7rem; text-transform: uppercase; letter-spacing: .1em; font-weight: 700; color: var(--mute); }
+.an-g { color: #1f7a4d; } .an-w { color: var(--accent); }
+.an-two { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; } .an-two ul { padding-left: 1.1rem; margin: 0; font-size: .88rem; } .an-two li { margin-bottom: .25rem; }

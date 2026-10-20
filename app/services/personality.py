@@ -47,6 +47,31 @@ PROMPTS = {
     "resilience": ["Describe your biggest setback in the last two years and how you came back from it.",
                    "Tell me about feedback that was hard to hear. What did you do with it?"],
 }
+# what a low / high score tends to look like at work: shown beside the score so the number is readable by a non-specialist
+READING = {
+    "conscientiousness": ("May be casual about deadlines and detail; needs clear structure and follow-up.",
+                          "Organised, reliable and thorough; likely to finish what they start."),
+    "emotional stability": ("May feel pressure strongly and be slower to recover from setbacks.",
+                            "Calm under pressure and steady after setbacks."),
+    "agreeableness": ("Direct and independent; may clash or compete more than cooperate.",
+                      "Cooperative, considerate and easy to work with; may avoid conflict."),
+    "extraversion": ("Reserved and reflective; may need encouragement to speak up.",
+                     "Energetic and outgoing; comfortable leading conversations."),
+    "openness": ("Prefers the familiar and proven; may resist new methods.",
+                 "Curious and quick to try new ideas and tools."),
+    "teamwork": ("Prefers working alone; may under-share or under-collaborate.",
+                 "Works well with others and shares credit and information."),
+    "leadership": ("Tends to follow rather than direct others.",
+                   "Takes charge, steers decisions and motivates others."),
+    "communication": ("May struggle to explain ideas or listen actively.",
+                      "Explains clearly and listens well."),
+    "adaptability": ("May find changes of plan unsettling.",
+                     "Adjusts quickly when plans or tools change."),
+    "integrity": ("Answers suggest some flexibility with rules; verify in references.",
+                  "Strong sense of honesty and ownership of mistakes."),
+    "initiative": ("Tends to wait for direction.", "Acts without being asked and spots problems early."),
+    "resilience": ("May be discouraged by setbacks or criticism.", "Bounces back from setbacks and uses feedback."),
+}
 GENERIC = ["Ask for a specific example from a project or study group that shows this trait in action.",
            "Ask what they would do differently next time in that example."]
 ALIASES = {"conscientious": "conscientiousness", "stability": "emotional stability", "neuroticism": "emotional stability",
@@ -129,6 +154,8 @@ def profile(db: Session, attempt: Attempt, test_id: int) -> dict | None:
         row = {"trait": key, "label": label(key), "items": t["n"], "answered": len(t["items"]), "score": t["pct"],
                "percentile": _percentile(t["pct"], cohort.get(key, [])) if t["pct"] is not None else None,
                "band": None if t["pct"] is None else "low" if t["pct"] < LOW else "high" if t["pct"] >= HIGH else "mid"}
+        lo_hi = READING.get(key)
+        row["reading"] = (lo_hi[0] if row["band"] == "low" else lo_hi[1] if row["band"] == "high" else None) if lo_hi else None
         if key in DESIRABILITY:
             desir = row
         else:
